@@ -41,12 +41,11 @@ public class Controlador {
 		this.clienteActual = clienteActual;
 	}
 	
-	public DefaultTableModel getInfoTable(boolean[] campVisibles){
+	public DefaultTableModel getInfoTable(BasicDBObject query, boolean[] campVisibles){
 		List<String> headers = Arrays.asList("ID", "TEXTO", "RETWEETS", "MENCIONADOS", "FECHA");
 		List<String> nameColumns = Arrays.asList("tweet_ID", "tweet_text", "retweet_count", "tweet_mentioned_count", "tweet_date");
 		
 		DefaultTableModel model = new DefaultTableModel();
-		QueryBuilder query = new QueryBuilder();
 		BasicDBObject campos = new BasicDBObject();
 		campos.append("_id", 0);
 		int size = 0;
@@ -57,7 +56,7 @@ public class Controlador {
 				campos.append(nameColumns.get(i), 1);
 			}
 		}
-		
+		System.out.println(query);
 		System.out.println(campos);
 		
 		JSONArray result = conexion.search(query, campos);

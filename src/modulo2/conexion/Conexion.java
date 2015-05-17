@@ -107,12 +107,12 @@ public class Conexion{
 	}
 
 
-	public JSONArray search(QueryBuilder query, BasicDBObject campos){
+	public JSONArray search(BasicDBObject query, BasicDBObject campos){
 		//items.drop();
 		//loadInformationOfTwitter(Arrays.asList("Henzer García"));
 		
 		JSONArray result = new JSONArray();
-		DBCursor cursor = items.find(query.get(), campos);
+		DBCursor cursor = items.find(query, campos);
 		try{
 			while(cursor.hasNext()){
 				DBObject element = cursor.next();
