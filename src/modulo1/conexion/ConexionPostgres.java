@@ -6,6 +6,12 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.Iterator;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class ConexionPostgres {
 
@@ -76,27 +82,44 @@ public class ConexionPostgres {
 	 * @param query Query to execute.
 	 * @return
 	 */
-	public boolean executeQuery(String query){
-		Statement st;
-		ResultSet rs;
+	public JSONArray executeQuery(String query){
+		Statement statement;
+		ResultSet resultSet;
+		JSONArray jsonResult;
 		try {
-			st = connection.createStatement();
-			rs = st.executeQuery(query);			
-			while (rs.next()){
-			   System.out.print("Column 1 returned ");
-			   System.out.println(rs.getString(1));
+			statement = connection.createStatement();		// Create a statement.
+			resultSet = statement.executeQuery(query);		// Execute query.
+			jsonResult = new JSONArray();					// Instance JSON result.
+			// Iterate result set.
+			while (resultSet.next()){
+				JSONObject jsonRow = new JSONObject();
+				int columnCount =  resultSet.getMetaData().getColumnCount();
+				for (int i=1; i<columnCount+1; i++){
+					String key = resultSet.getMetaData().getColumnLabel(i);
+					String value = resultSet.getString(i);
+					try {
+						jsonRow.put(key, value);						
+					} catch (JSONException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}					
+					//System.out.println("columnLabel: " + resultSet.getMetaData().getColumnLabel(i));					
+					//System.out.println("content: " + resultSet.getString(i));
+					//System.out.println("type: " + resultSet.getMetaData().getColumnTypeName(i));
+				}
+				jsonResult.put(jsonRow);
 			}
-			rs.close();
-			st.close();
+			resultSet.close();
+			statement.close();
 			
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			System.out.println(e.getMessage());
 			// e.printStackTrace();
-			return false;
+			return null;
 		}
 		
-		return true;
+		return jsonResult;
 	}
 	
 	/**
@@ -112,4 +135,32 @@ public class ConexionPostgres {
 			e.printStackTrace();
 		}
 	}
+	
+	/**
+	 * Get columns name for a specific table.
+	 * @param tableName Table name to inspect.
+	 * @return ArrayList with the columns name.
+	 */
+	public ArrayList<String> getTableColumns(String tableName){		
+		ArrayList<String> columns = null;
+	    DatabaseMetaData metadata;
+		try {
+			metadata = connection.getMetaData();
+		    ResultSet resultSet = metadata.getColumns(null, null, tableName, null);
+		    columns = new ArrayList<String>();
+		    while (resultSet.next()) {
+		    	String name = resultSet.getString("COLUMN_NAME");
+		    	//String type = resultSet.getString("TYPE_NAME");
+		    	//int size = resultSet.getInt("COLUMN_SIZE");
+		    	columns.add(name);
+		    }
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return columns;
+	}
+	
+	//INSERT INTO clientes VALUES(0, 'Cesar Anibal', 'Luis Alvarado', 'Las Charcas, Z11', 'cesarluis93@gmail.com', '22/02/93', 'M', '29-365686', 0, 0, 0, 0);
+	
 }

@@ -5,5 +5,6 @@
 	<classpathentry kind="lib" path="lib/twitter4j-core-4.0.3.jar"/>
 	<classpathentry kind="lib" path="lib/mongo-java-driver-2.11.3.jar"/>
 	<classpathentry kind="lib" path="lib/postgresql-9.4-1201.jdbc41.jar"/>
+	<classpathentry kind="lib" path="C:/Users/CesarLuis/Documents/Eclipse/GIT/ProyectoBD2/lib/java-json.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
