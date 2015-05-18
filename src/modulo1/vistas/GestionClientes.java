@@ -723,6 +723,7 @@ public class GestionClientes extends JFrame{
 			}
 			listFormFields.get("textField" + formLabels.get(i)).setText(propertie);
 		}
+		table.setRowSelectionInterval(controlClientes.getPosActual(), controlClientes.getPosActual());
 
 	}
 }
