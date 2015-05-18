@@ -14,7 +14,7 @@ public class Main {
 		   //Ventana v = new Ventana();
 		   //v.setVisible(true);
 		   ControladorClientes c = new ControladorClientes();
-		   c.getDataClientes(Arrays.asList("nombres", "apellidos", "correo"));
+		   //c.getDataClientes(Arrays.asList("nombres", "apellidos", "correo"));
 		}
 		catch (Exception e){
 		   e.printStackTrace();

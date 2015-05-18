@@ -92,7 +92,7 @@ public class GestionClientes extends JFrame{
 		contentPane.setLayout(new BorderLayout(0, 0));
 		
 		
-		conexion = new ConexionPostgres();
+		conexion = ConexionPostgres.getInstancia();
 		
 		// Confirmacion de salida.
 		addWindowListener(new WindowAdapter() {
