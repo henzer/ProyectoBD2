@@ -51,6 +51,7 @@ public class ControladorClientes {
 	//Devuelve el primer elemento de la lista actual. Si esta vacia retorna NULL
 	public JSONObject getFirst() throws Exception{
 		if(dataActual.length()>0){
+			posActual = 0;
 			return (JSONObject) dataActual.get(0);
 		}
 		return null;
@@ -59,6 +60,7 @@ public class ControladorClientes {
 	//Devuelve el ultimo elemento de la lista actual. Si esta vacia retorna NULL
 	public JSONObject getLast() throws Exception{
 		if(dataActual.length()>0){
+			posActual = dataActual.length()-1;
 			return (JSONObject) dataActual.get(dataActual.length()-1);
 		}
 		return null;
@@ -67,6 +69,7 @@ public class ControladorClientes {
 	//Devuelve el elemento ubicado en la posición POS, si está vacia retorna null.
 	public JSONObject getElement(int pos) throws Exception{
 		if(dataActual.length()>0){
+			posActual = pos;
 			return (JSONObject) dataActual.get(pos);
 		}
 		return null;
