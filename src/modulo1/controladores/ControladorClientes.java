@@ -68,6 +68,11 @@ public class ControladorClientes {
 	
 	//Devuelve el elemento ubicado en la posición POS, si está vacia retorna null.
 	public JSONObject getElement(int pos) throws Exception{
+		if(pos<0)
+			pos = 0;
+		if(pos>dataActual.length()-1)
+			pos = dataActual.length()-1;
+			
 		if(dataActual.length()>0){
 			posActual = pos;
 			return (JSONObject) dataActual.get(pos);
