@@ -14,7 +14,13 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public class ConexionPostgres {
-
+	private static ConexionPostgres instancia;
+	public static ConexionPostgres getInstancia(){
+		if(instancia==null)
+			instancia = new ConexionPostgres();
+		return instancia;
+	}
+	
 	Connection connection;
 	
 	public ConexionPostgres(){
