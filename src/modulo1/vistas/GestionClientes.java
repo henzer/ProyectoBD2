@@ -163,6 +163,13 @@ public class GestionClientes extends JFrame{
 				// Getting properties for this id.
 				String query = "SELECT * FROM " + tableName + " WHERE id" + objectToShow + " = " + id + ";" ;
 				JSONArray jsonRow = conexion.executeQuery(query);
+				if (jsonRow.length() == 0){
+					JOptionPane.showMessageDialog(null, "No se encontró ningún resultado\ncon el ID especificado..!", "CRM Clientes", JOptionPane.ERROR_MESSAGE);
+					textField_1.selectAll();
+					textField_1.requestFocusInWindow();
+					return;					
+				}
+				
 				System.out.println("jsonRoww: " + jsonRow.length());
 		    	
 		    	
@@ -280,8 +287,14 @@ public class GestionClientes extends JFrame{
 		JLabel labelComa1 = new JLabel(",");
 		panel_2.add(labelComa1);
 		
-		JComboBox comboBoxLike = new JComboBox();
-		comboBoxLike.setModel(new DefaultComboBoxModel(new String[] {"default"}));
+		
+		ArrayList<String> tableColumns2 = new ArrayList<String>();
+		tableColumns2.add("default");
+		tableColumns2.addAll(tableColumns);
+		
+		JComboBox comboBoxLike = new JComboBox();			
+		Object[] model = tableColumns2.toArray();
+		comboBoxLike.setModel(new DefaultComboBoxModel(model));		
 		panel_2.add(comboBoxLike);
 		
 		JLabel lblLike = new JLabel("parecido a : ");
@@ -295,8 +308,7 @@ public class GestionClientes extends JFrame{
 		panel_2.add(labelComa2);
 		
 		JComboBox comboBoxGroupBy = new JComboBox();
-		comboBoxGroupBy.setModel(new DefaultComboBoxModel(new String[] {"default"}));
-		
+		comboBoxGroupBy.setModel(new DefaultComboBoxModel(model));		
 		panel_2.add(comboBoxGroupBy);
 		
 		JLabel lblOrden = new JLabel(", orden : ");
@@ -306,26 +318,27 @@ public class GestionClientes extends JFrame{
 		comboBoxOrderBy.setModel(new DefaultComboBoxModel(new String[] {"default", "ascendente", "descendente"}));
 		panel_2.add(comboBoxOrderBy);
 		
-		JLabel label = new JLabel("          -->         ");
+		JLabel label = new JLabel("     -->     ");
 		panel_2.add(label);
 		
 		JCheckBox chckbxSelectAll = new JCheckBox("Todo");
-		
-		ArrayList<String> tableColumnsToShow = new ArrayList<String>();
-		
+
 		
 		// ***************** CONSTRUCCION DE LA QUERY CON FILTROS *****************
 		JButton btnBuscar_1 = new JButton("Buscar");
 		btnBuscar_1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				
+				ArrayList<String> tableColumnsToShow = new ArrayList<String>();				
 				// Consult construction.
 				String query = "SELECT ";
 				// Columns for select...				
 				if (!chckbxSelectAll.isSelected()){									
 					for (int i=0; i<listFieldsToShow.size(); i++){
-						if (listFieldsToShow.get("checkBox" + tableColumns.get(i)).isSelected())
-							query += tableColumns.get(i) + ", ";					
+						if (listFieldsToShow.get("checkBox" + tableColumns.get(i)).isSelected()){
+							query += tableColumns.get(i) + ", ";
+							tableColumnsToShow.add(tableColumns.get(i));
+						}
 					}				
 					query = query.substring(0, query.length()-2);		// Delete the comma at the end of the line.
 				}
@@ -349,7 +362,7 @@ public class GestionClientes extends JFrame{
 						return;
 					}
 					
-					// ID condition					 
+					// ID condition
 					if (!comboBoxRelOp.getSelectedItem().toString().equals("default")){
 						whereExist = true;
 						query += " WHERE idcliente " + comboBoxRelOp.getSelectedItem().toString() + " " + textFieldFiltrarID.getText();
@@ -357,14 +370,7 @@ public class GestionClientes extends JFrame{
 				}
 					
 				// SOME filter
-				if (!comboBoxLike.getSelectedItem().equals("default")){
-					// validation
-					if (!tableColumns.contains(textFieldLike.getText())){
-						JOptionPane.showMessageDialog(null, "Campo no existe en la relación Cliente..!", "CRM Clientes", JOptionPane.ERROR_MESSAGE);
-						textFieldLike.selectAll();
-						textFieldLike.requestFocusInWindow();
-						return;
-					}
+				if (!comboBoxLike.getSelectedItem().equals("default")){	
 					if (!whereExist)
 						query += " WHERE " + comboBoxLike.getSelectedItem().toString() + " LIKE " + textFieldLike.getText();
 					else
@@ -378,14 +384,19 @@ public class GestionClientes extends JFrame{
 				
 				// Order By Filter
 				if (!comboBoxOrderBy.getSelectedItem().equals("default")){
-					String filter = (comboBoxOrderBy.getSelectedItem().equals("ascendente"))? "ASC": "DSC";
+					String filter = (comboBoxOrderBy.getSelectedItem().equals("ascendente"))? "ASC": "DESC";
 					query += " ORDER BY " + filter;
 				}
 				
 				query += ";";
 				System.out.println(query);
+
+				// Getting a model
 				
-				
+				ControladorClientes controlClientes = new ControladorClientes();
+				DefaultTableModel dataModel = controlClientes.getDataClientes(tableColumnsToShow, query);		
+				table.setModel(dataModel);
+				table.updateUI();				
 			}
 		});
 		panel_2.add(btnBuscar_1);
@@ -409,22 +420,35 @@ public class GestionClientes extends JFrame{
 		}
 		
 		
+		
+		ArrayList<String> tableColumnsToShow = new ArrayList<String>();		
 		for (int i=0; i<listFieldsToShow.size(); i++){
 			if (listFieldsToShow.get("checkBox" + tableColumns.get(i)).isSelected()){
 				tableColumnsToShow.add(tableColumns.get(i));
 			}			
 		}
 		
+		
+		// ********* TABLA DE DATOS ********* 
 		ControladorClientes controlClientes = new ControladorClientes();
-		DefaultTableModel model = controlClientes.getDataClientes(tableColumnsToShow);
+		String query = "SELECT * FROM clientes;";
+		DefaultTableModel dataModel = controlClientes.getDataClientes(tableColumnsToShow, query);		
+		table = new JTable(dataModel);
 		
-		String query = "SELECT * FROM clientes;"; 
-		JSONArray datos = conexion.executeQuery(query);		
-		table = new JTable(model);
-		
+		// ********* SCROLL PANE PARA LA TABLA *********
 		JScrollPane scrollPane = new JScrollPane(table);
 		table.setFillsViewportHeight(true);
 		panelTabla.add(scrollPane, BorderLayout.CENTER);
+		
+		JPanel panelOtrasGestiones = new JPanel();
+		panelTabla.add(panelOtrasGestiones, BorderLayout.SOUTH);
+		
+		JLabel lblVerTabla = new JLabel("Ver Tabla : ");
+		panelOtrasGestiones.add(lblVerTabla);
+		
+		JComboBox comboBox = new JComboBox();
+		comboBox.setModel(new DefaultComboBoxModel(new String[] {"clientes", "categoria", "estado", "departamento", "pais", "telefono"}));
+		panelOtrasGestiones.add(comboBox);
 	}
 	
 	private void onClose(){

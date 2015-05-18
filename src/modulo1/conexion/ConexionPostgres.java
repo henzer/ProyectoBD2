@@ -36,7 +36,7 @@ public class ConexionPostgres {
 		System.out.println("PostgreSQL JDBC Driver Registered!");
 		connection = null;
 		try{
-			connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/ProyectoCRM", "postgres", "IngCienComp93");
+			connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/ProyectoCRM", "postgres", "cesarlui93");
 			//connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/ProyectoCRM", "postgres", "henzer");
 		}
 		catch (SQLException e){
@@ -89,7 +89,7 @@ public class ConexionPostgres {
 		JSONArray jsonResult;
 		try {
 			statement = connection.createStatement();		// Create a statement.
-			resultSet = statement.executeQuery(query);		// Execute query.
+			resultSet = statement.executeQuery(query);		// Execute query.			
 			jsonResult = new JSONArray();					// Instance JSON result.
 			// Iterate result set.
 			while (resultSet.next()){

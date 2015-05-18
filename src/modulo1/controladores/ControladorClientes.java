@@ -12,13 +12,14 @@ import modulo1.conexion.ConexionPostgres;
 
 public class ControladorClientes {
 	
-	public DefaultTableModel getDataClientes(List<String> columnas){
+	public DefaultTableModel getDataClientes(List<String> columnas, String query){
 		DefaultTableModel model = new DefaultTableModel();
 		ConexionPostgres miConexion = new ConexionPostgres();
-		JSONArray arreglo = miConexion.executeQuery("select * from clientes;");
+		JSONArray arreglo = miConexion.executeQuery(query);
 		for(String header: columnas){
 			model.addColumn(header);
 		}
+		
 		try {
 			for(int i=0; i<arreglo.length(); i++){
 				JSONObject elemento = (JSONObject)arreglo.get(i);
