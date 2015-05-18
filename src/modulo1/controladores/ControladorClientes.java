@@ -24,8 +24,7 @@ public class ControladorClientes {
 	
 	public DefaultTableModel getDataClientes(List<String> columnas, String query){
 		DefaultTableModel model = new DefaultTableModel();
-		ConexionPostgres miConexion = new ConexionPostgres();
-		JSONArray arreglo = miConexion.executeQuery("select * from clientes;");
+		JSONArray arreglo = ConexionPostgres.getInstancia().executeQuery("select * from clientes;");
 		for(String header: columnas){
 			model.addColumn(header);
 		}
