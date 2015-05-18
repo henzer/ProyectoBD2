@@ -12,13 +12,7 @@ import modulo1.conexion.ConexionPostgres;
 import modulo2.conexion.Conexion;
 
 public class ControladorClientes {
-	private JSONArray clientes;
-	private JSONArray categorias;
-	private JSONArray departamentos;
-	private JSONArray estados;
-	private JSONArray paises;
-	private JSONArray telefonos;
-	private String actual;
+	private JSONArray dataActual;
 	private int posActual;
 	
 	private static ControladorClientes instancia;
@@ -29,25 +23,19 @@ public class ControladorClientes {
 	}
 	
 	public ControladorClientes(){
-		clientes = new JSONArray();
-		categorias = new JSONArray();
-		departamentos = new JSONArray();
-		estados = new JSONArray();
-		paises = new JSONArray();
-		telefonos = new JSONArray();
+		dataActual = new JSONArray();
 	}
 	
 	//
 	public DefaultTableModel getDataClientes(List<String> columnas, String query){
-		actual = "clientes";
 		DefaultTableModel model = new DefaultTableModel();
-		clientes = ConexionPostgres.getInstancia().executeQuery(query);
+		dataActual = ConexionPostgres.getInstancia().executeQuery(query);
 		for(String header: columnas){
 			model.addColumn(header);
 		}
 		try {
-			for(int i=0; i<clientes.length(); i++){
-				JSONObject elemento = (JSONObject)clientes.get(i);
+			for(int i=0; i<dataActual.length(); i++){
+				JSONObject elemento = (JSONObject)dataActual.get(i);
 				Object [] row = new Object[columnas.size()];
 				for(int j=0; j<columnas.size(); j++){
 					row[j] = elemento.get(columnas.get(j));
@@ -62,66 +50,24 @@ public class ControladorClientes {
 	
 	//Devuelve el primer elemento de la lista actual. Si esta vacia retorna NULL
 	public JSONObject getFirst() throws Exception{
-		switch(actual){
-		case "clientes":
-			if(clientes.length()>0){
-				return (JSONObject) clientes.get(0);
-			}
-			break;
-		case "categorias":
-			break;
-		case "departamentos":
-			break;
-		case "estados":
-			break;
-		case "paises":
-			break;
-		case "telefonos":
-			break;
+		if(dataActual.length()>0){
+			return (JSONObject) dataActual.get(0);
 		}
 		return null;
 	}
 	
 	//Devuelve el ultimo elemento de la lista actual. Si esta vacia retorna NULL
 	public JSONObject getLast() throws Exception{
-		switch(actual){
-		case "clientes":
-			if(clientes.length()>0){
-				return (JSONObject) clientes.get(clientes.length()-1);
-			}
-			break;
-		case "categorias":
-			break;
-		case "departamentos":
-			break;
-		case "estados":
-			break;
-		case "paises":
-			break;
-		case "telefonos":
-			break;
+		if(dataActual.length()>0){
+			return (JSONObject) dataActual.get(dataActual.length()-1);
 		}
 		return null;
 	}
 	
 	//Devuelve el elemento ubicado en la posición POS, si está vacia retorna null.
 	public JSONObject getElement(int pos) throws Exception{
-		switch(actual){
-		case "clientes":
-			if(clientes.length()>0){
-				return (JSONObject) clientes.get(pos);
-			}
-			break;
-		case "categorias":
-			break;
-		case "departamentos":
-			break;
-		case "estados":
-			break;
-		case "paises":
-			break;
-		case "telefonos":
-			break;
+		if(dataActual.length()>0){
+			return (JSONObject) dataActual.get(pos);
 		}
 		return null;
 	}
