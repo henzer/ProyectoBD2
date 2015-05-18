@@ -12,6 +12,7 @@ import javax.swing.JButton;
 import javax.swing.BoxLayout;
 
 import modulo1.conexion.ConexionPostgres;
+import modulo1.controladores.ControladorClientes;
 
 import java.awt.FlowLayout;
 import java.awt.event.ActionListener;
@@ -30,6 +31,7 @@ import javax.swing.JCheckBox;
 import java.awt.GridLayout;
 
 import javax.swing.border.BevelBorder;
+import javax.swing.table.DefaultTableModel;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
 import javax.swing.JSplitPane;
@@ -59,6 +61,7 @@ import java.awt.event.ItemListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.InputMethodListener;
 import java.awt.event.InputMethodEvent;
+import java.awt.Insets;
 
 public class GestionClientes extends JFrame{
 	
@@ -71,6 +74,9 @@ public class GestionClientes extends JFrame{
 	private JPanel panelGestionarCliente;
 	private String objectToShow = "cliente";
 	private Map<String, JTextField> listFormFields;
+	private Map<String, JCheckBox> listFieldsToShow;
+	private JTextField textFieldFiltrarID;
+	private JTextField textFieldLike;
 
 	/**
 	 * Create the frame.
@@ -100,41 +106,15 @@ public class GestionClientes extends JFrame{
 		});
 		
 		
-		JPanel panelEncabezado = new JPanel();
-		contentPane.add(panelEncabezado, BorderLayout.NORTH);
-		
-		JButton btnConnectar = new JButton("Connectar");
-		btnConnectar.addActionListener(new ActionListener(){
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
-				String query = "SELECT * FROM estado;";
-				JSONArray result = conexion.executeQuery(query);
-				for (int i=0; i<result.length(); i++){
-					try {
-						System.out.println(result.get(i).toString());
-					} catch (JSONException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					}
-				}
-						
-			}
-			
-		});
-		panelEncabezado.add(btnConnectar);
-		
-		
 		JPanel panelGestion = new JPanel();
-		contentPane.add(panelGestion, BorderLayout.CENTER);
+		contentPane.add(panelGestion, BorderLayout.WEST);
 		panelGestion.setLayout(new BorderLayout(0, 0));
 		
 		
 		panelGestionarCliente = new JPanel();
 		panelGestionarCliente.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
 		panelGestionarCliente.setPreferredSize(new Dimension(400, 10));
-		panelGestion.add(panelGestionarCliente, BorderLayout.EAST);
+		panelGestion.add(panelGestionarCliente, BorderLayout.WEST);
 		panelGestionarCliente.setLayout(new BorderLayout(0, 0));		
 		
 		// Paneles de Gestionar Cliente.
@@ -168,7 +148,8 @@ public class GestionClientes extends JFrame{
 					id = Integer.parseInt(textField_1.getText());
 				}
 				catch (Exception err){
-					JOptionPane.showMessageDialog(null, "ID inválido", "CRM Clientes", JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(null, "ID inválido..!", "CRM Clientes", JOptionPane.ERROR_MESSAGE);
+					textField_1.selectAll();
 					textField_1.requestFocusInWindow();
 					return;
 				}
@@ -264,91 +245,185 @@ public class GestionClientes extends JFrame{
 		
 		panelGestionarCliente.add(panelGCGestionar, BorderLayout.SOUTH);
 		
-		
-		
-		
-		JPanel panelGCFiltrar = new JPanel();
-		panelGCFiltrar.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
-		panelGestion.add(panelGCFiltrar, BorderLayout.CENTER);
-		
 		JPanel panelTabla = new JPanel();
 		panelTabla.setPreferredSize(new Dimension(10, 300));
-		contentPane.add(panelTabla, BorderLayout.SOUTH);
+		contentPane.add(panelTabla, BorderLayout.CENTER);
 		panelTabla.setLayout(new BorderLayout(0, 0));
 		
+
+		// ********************** VISTA FILTROS ********************** 
 		
-	
-		String[] columnNames = {"First Name",
-                "Last Name",
-                "Sport",
-                "# of Years",
-                "Vegetarian"};
-		Object[][] data = {
-			    {"Kathy", "Smith",
-			     "Snowboarding", new Integer(5), new Boolean(false)},
-			    {"John", "Doe",
-			     "Rowing", new Integer(3), new Boolean(true)},
-			    {"Sue", "Black",
-			     "Knitting", new Integer(2), new Boolean(false)},
-			    {"Jane", "White",
-			     "Speed reading", new Integer(20), new Boolean(true)},
-			    {"Joe", "Brown",
-			     "Pool", new Integer(10), new Boolean(false)}
-			};
+		// Getting columns clientes relation...
+		ArrayList<String> tableColumns = conexion.getTableColumns("clientes");
 		
-		JPanel panel = new JPanel();
-		panelTabla.add(panel, BorderLayout.NORTH);
-		panel.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
+		JPanel panelFiltros = new JPanel();
+		panelTabla.add(panelFiltros, BorderLayout.NORTH);
+		panelFiltros.setLayout(new BorderLayout(0, 0));
 		
-		JCheckBox chckbxTodo = new JCheckBox("Todo");
-		panel.add(chckbxTodo);
+		JPanel panel_2 = new JPanel();
+		panelFiltros.add(panel_2, BorderLayout.NORTH);
 		
-		JCheckBox chckbxBsico = new JCheckBox("B\u00E1sico");
-		panel.add(chckbxBsico);
+		JLabel lblNewLabel = new JLabel("Filtrar : ");
+		panel_2.add(lblNewLabel);
 		
-		JCheckBox chckbxID = new JCheckBox("ID");
-		panel.add(chckbxID);
+		JLabel lblId_1 = new JLabel("ID");
+		panel_2.add(lblId_1);
 		
-		JCheckBox chckbxNombre = new JCheckBox("Nombres");
-		panel.add(chckbxNombre);
+		JComboBox comboBoxRelOp = new JComboBox();
+		comboBoxRelOp.setModel(new DefaultComboBoxModel(new String[] {"default", "<", "<=", ">=", ">"}));
+		panel_2.add(comboBoxRelOp);
 		
-		JCheckBox chckbxApellido = new JCheckBox("Apellidos");
-		panel.add(chckbxApellido);
+		textFieldFiltrarID = new JTextField();
+		panel_2.add(textFieldFiltrarID);
+		textFieldFiltrarID.setColumns(10);
 		
-		JCheckBox chckbxNewCheckBox = new JCheckBox("Direcci\u00F3n");
-		panel.add(chckbxNewCheckBox);
+		JLabel labelComa1 = new JLabel(",");
+		panel_2.add(labelComa1);
 		
-		JCheckBox chckbxCorreo = new JCheckBox("Correo");
-		panel.add(chckbxCorreo);
+		JComboBox comboBoxLike = new JComboBox();
+		comboBoxLike.setModel(new DefaultComboBoxModel(new String[] {"default"}));
+		panel_2.add(comboBoxLike);
 		
-		JCheckBox chckbxFechaNacimiento = new JCheckBox("Fecha Nacimiento");
-		panel.add(chckbxFechaNacimiento);
+		JLabel lblLike = new JLabel("parecido a : ");
+		panel_2.add(lblLike);
 		
-		JCheckBox chckbxGnero = new JCheckBox("G\u00E9nero");
-		panel.add(chckbxGnero);
+		textFieldLike = new JTextField();
+		panel_2.add(textFieldLike);
+		textFieldLike.setColumns(10);
 		
-		JCheckBox chckbxCrdito = new JCheckBox("Cr\u00E9dito");
-		panel.add(chckbxCrdito);
+		JLabel labelComa2 = new JLabel(", agrupado por : ");
+		panel_2.add(labelComa2);
 		
-		JCheckBox chckbxCuenta = new JCheckBox("Cuenta");
-		panel.add(chckbxCuenta);
+		JComboBox comboBoxGroupBy = new JComboBox();
+		comboBoxGroupBy.setModel(new DefaultComboBoxModel(new String[] {"default"}));
 		
-		JCheckBox chckbxCategora = new JCheckBox("Categor\u00EDa");
-		panel.add(chckbxCategora);
+		panel_2.add(comboBoxGroupBy);
 		
-		JCheckBox chckbxEstado = new JCheckBox("Estado");
-		panel.add(chckbxEstado);
+		JLabel lblOrden = new JLabel(", orden : ");
+		panel_2.add(lblOrden);
 		
-		JCheckBox chckbxDepartamento = new JCheckBox("Departamento");
-		panel.add(chckbxDepartamento);
+		JComboBox comboBoxOrderBy = new JComboBox();
+		comboBoxOrderBy.setModel(new DefaultComboBoxModel(new String[] {"default", "ascendente", "descendente"}));
+		panel_2.add(comboBoxOrderBy);
 		
-		JCheckBox chckbxTelfono = new JCheckBox("Tel\u00E9fono");
-		panel.add(chckbxTelfono);
+		JLabel label = new JLabel("          -->         ");
+		panel_2.add(label);
 		
-		table = new JTable(data, columnNames);		
+		JCheckBox chckbxSelectAll = new JCheckBox("Todo");
+		
+		ArrayList<String> tableColumnsToShow = new ArrayList<String>();
+		
+		
+		// ***************** CONSTRUCCION DE LA QUERY CON FILTROS *****************
+		JButton btnBuscar_1 = new JButton("Buscar");
+		btnBuscar_1.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				// Consult construction.
+				String query = "SELECT ";
+				// Columns for select...				
+				if (!chckbxSelectAll.isSelected()){									
+					for (int i=0; i<listFieldsToShow.size(); i++){
+						if (listFieldsToShow.get("checkBox" + tableColumns.get(i)).isSelected())
+							query += tableColumns.get(i) + ", ";					
+					}				
+					query = query.substring(0, query.length()-2);		// Delete the comma at the end of the line.
+				}
+				else{
+					query += " *";
+				}
+				
+				query += " FROM clientes ";
+				
+				// ID Filter
+				boolean whereExist = false;
+				if (!comboBoxRelOp.getSelectedItem().equals("default")){
+					// Validación de campo ID.
+					try{
+						int idFilter = Integer.parseInt(textFieldFiltrarID.getText());
+					}
+					catch (Exception error){
+						JOptionPane.showMessageDialog(null, "ID inválido..!", "CRM Clientes", JOptionPane.ERROR_MESSAGE);
+						textFieldFiltrarID.selectAll();
+						textFieldFiltrarID.requestFocusInWindow();
+						return;
+					}
+					
+					// ID condition					 
+					if (!comboBoxRelOp.getSelectedItem().toString().equals("default")){
+						whereExist = true;
+						query += " WHERE idcliente " + comboBoxRelOp.getSelectedItem().toString() + " " + textFieldFiltrarID.getText();
+					}					
+				}
+					
+				// SOME filter
+				if (!comboBoxLike.getSelectedItem().equals("default")){
+					// validation
+					if (!tableColumns.contains(textFieldLike.getText())){
+						JOptionPane.showMessageDialog(null, "Campo no existe en la relación Cliente..!", "CRM Clientes", JOptionPane.ERROR_MESSAGE);
+						textFieldLike.selectAll();
+						textFieldLike.requestFocusInWindow();
+						return;
+					}
+					if (!whereExist)
+						query += " WHERE " + comboBoxLike.getSelectedItem().toString() + " LIKE " + textFieldLike.getText();
+					else
+						query += " AND " + comboBoxLike.getSelectedItem().toString() + " LIKE " + textFieldLike.getText();
+				}
+				
+				// Group By Filter
+				if (!comboBoxGroupBy.getSelectedItem().equals("default")){
+					query += " GROUP BY " + comboBoxGroupBy.getSelectedItem().toString();
+				}
+				
+				// Order By Filter
+				if (!comboBoxOrderBy.getSelectedItem().equals("default")){
+					String filter = (comboBoxOrderBy.getSelectedItem().equals("ascendente"))? "ASC": "DSC";
+					query += " ORDER BY " + filter;
+				}
+				
+				query += ";";
+				System.out.println(query);
+				
+				
+			}
+		});
+		panel_2.add(btnBuscar_1);
+		
+		JPanel panelMostrarCampos = new JPanel();
+		panelFiltros.add(panelMostrarCampos, BorderLayout.CENTER);
+		panelMostrarCampos.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
+				
+		panelMostrarCampos.add(chckbxSelectAll);
+		
+		// Check boxes for columns to show.
+		listFieldsToShow = new HashMap<String, JCheckBox>();
+		for (int i=0; i<tableColumns.size(); i++){			
+			JCheckBox chckbxField = new JCheckBox(tableColumns.get(i));
+			if (i < 4)
+				chckbxField.setSelected(true);
+			else
+				chckbxField.setSelected(false);
+			panelMostrarCampos.add(chckbxField);
+			listFieldsToShow.put("checkBox" + tableColumns.get(i), chckbxField);
+		}
+		
+		
+		for (int i=0; i<listFieldsToShow.size(); i++){
+			if (listFieldsToShow.get("checkBox" + tableColumns.get(i)).isSelected()){
+				tableColumnsToShow.add(tableColumns.get(i));
+			}			
+		}
+		
+		ControladorClientes controlClientes = new ControladorClientes();
+		DefaultTableModel model = controlClientes.getDataClientes(tableColumnsToShow);
+		
+		String query = "SELECT * FROM clientes;"; 
+		JSONArray datos = conexion.executeQuery(query);		
+		table = new JTable(model);
 		
 		JScrollPane scrollPane = new JScrollPane(table);
-		table.setFillsViewportHeight(true);		
+		table.setFillsViewportHeight(true);
 		panelTabla.add(scrollPane, BorderLayout.CENTER);
 	}
 	
@@ -367,13 +442,11 @@ public class GestionClientes extends JFrame{
 		// Getting first row from table.
 		String query = "SELECT * FROM " + tableName + " WHERE id" + objectToShow + " = 0;" ;
 		JSONArray jsonFirstRow = conexion.executeQuery(query);
-				
 		ArrayList<String> formLabels = conexion.getTableColumns(tableName);
 		int numPairs = formLabels.size();
 		//Create and populate the panel.
 		panelGCForm = new JPanel(new SpringLayout());
 		listFormFields = new HashMap<String, JTextField>();
-		System.out.println("numPairsSize construt: " + numPairs);
 		for (int i = 0; i < numPairs; i++) {
 		    JLabel label = new JLabel(formLabels.get(i) + " : ", JLabel.TRAILING);		    
 		    panelGCForm.add(label);
@@ -384,22 +457,17 @@ public class GestionClientes extends JFrame{
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-		    System.out.println("hola: " + hola);
 		    JTextField textField = new JTextField(hola);
 		    label.setLabelFor(textField);		    
 		    panelGCForm.add(textField);
 		    listFormFields.put("textField" + formLabels.get(i), textField);
 		}
-		System.out.println("listFormFieldsSize construt: " + listFormFields.size());
 		
 		//Lay out the panel.
 		SpringUtilities.makeCompactGrid(panelGCForm,
 		                                numPairs, 2, //rows, cols
 		                                6, 6,        //initX, initY
-		                                6, 6);       //xPad, yPad		
-		
-		
-		
+		                                6, 6);       //xPad, yPad							
 		
 	} 
 }

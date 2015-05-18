@@ -36,8 +36,8 @@ public class ConexionPostgres {
 		System.out.println("PostgreSQL JDBC Driver Registered!");
 		connection = null;
 		try{
-			//connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/ProyectoCRM", "postgres", "IngCienComp93");
-			connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/ProyectoCRM", "postgres", "henzer");
+			connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/ProyectoCRM", "postgres", "IngCienComp93");
+			//connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/ProyectoCRM", "postgres", "henzer");
 		}
 		catch (SQLException e){
 			System.out.println("Connection Failed! Check output console..!");
