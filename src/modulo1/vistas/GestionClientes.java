@@ -54,6 +54,7 @@ import javax.swing.DefaultComboBoxModel;
 
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeEvent;
@@ -62,6 +63,10 @@ import java.awt.event.ItemEvent;
 import java.awt.event.InputMethodListener;
 import java.awt.event.InputMethodEvent;
 import java.awt.Insets;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+
+import javax.swing.ListSelectionModel;
 
 public class GestionClientes extends JFrame{
 	
@@ -77,6 +82,7 @@ public class GestionClientes extends JFrame{
 	private Map<String, JCheckBox> listFieldsToShow;
 	private JTextField textFieldFiltrarID;
 	private JTextField textFieldLike;
+	private ArrayList<String> tableColumns;
 
 	/**
 	 * Create the frame.
@@ -104,6 +110,7 @@ public class GestionClientes extends JFrame{
 	          	}
 		     }
 		});
+		
 		
 		
 		JPanel panelGestion = new JPanel();
@@ -139,83 +146,20 @@ public class GestionClientes extends JFrame{
 		panelGCBuscar.add(textField_1);
 		textField_1.setColumns(10);
 		
-		JButton btnBuscar = new JButton("Buscar");
-		btnBuscar.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				// Getting id...
-				int id;
-				try{
-					id = Integer.parseInt(textField_1.getText());
-				}
-				catch (Exception err){
-					JOptionPane.showMessageDialog(null, "ID inválido..!", "CRM Clientes", JOptionPane.ERROR_MESSAGE);
-					textField_1.selectAll();
-					textField_1.requestFocusInWindow();
-					return;
-				}
-				
-				
-				objectToShow = comboBoxMostrar.getSelectedItem().toString().toLowerCase();
-		    	String tableName = objectToShow;
-		    	if (tableName.equals("cliente"))
-		    		tableName = "clientes";		    	
-
-				// Getting properties for this id.
-				String query = "SELECT * FROM " + tableName + " WHERE id" + objectToShow + " = " + id + ";" ;
-				JSONArray jsonRow = conexion.executeQuery(query);
-				if (jsonRow.length() == 0){
-					JOptionPane.showMessageDialog(null, "No se encontró ningún resultado\ncon el ID especificado..!", "CRM Clientes", JOptionPane.ERROR_MESSAGE);
-					textField_1.selectAll();
-					textField_1.requestFocusInWindow();
-					return;					
-				}
-				
-				System.out.println("jsonRoww: " + jsonRow.length());
-		    	
-		    	
-		    	ArrayList<String> formLabels = conexion.getTableColumns(tableName);
-		    	System.out.println("formLabelsSize: " + formLabels.size());
-		    	System.out.println("listFormFieldsSize: " + listFormFields.size());
-				for (int i=0; i < formLabels.size(); i++){
-					String propertie = "null";
-					try {
-						propertie = jsonRow.getJSONObject(0).getString(formLabels.get(i));
-					} catch (JSONException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-						return;
-					}
-					listFormFields.get("textField" + formLabels.get(i)).setText(propertie);
-				}
-				
-				
-			}
-		});		
+		
+		JButton btnBuscar = new JButton("Buscar"); 	
 		panelGCBuscar.add(btnBuscar);		
 		panelGestionarCliente.add(panelGCBuscar, BorderLayout.NORTH);
 		
 		
-		comboBoxMostrar.addActionListener (new ActionListener () {
-		    public void actionPerformed(ActionEvent e) {
-		    	objectToShow = comboBoxMostrar.getSelectedItem().toString().toLowerCase();
-		    	panelGestionarCliente.removeAll();		    					
-		    	panelGestionarCliente.add(panelGCBuscar, BorderLayout.NORTH);
-		    	String tableName = objectToShow;
-		    	if (tableName.equals("cliente"))
-		    		tableName = "clientes";
-		    	createFormShow(tableName);
-				scrollPaneGCForm = new JScrollPane(panelGCForm);
-				panelGestionarCliente.add(scrollPaneGCForm, BorderLayout.CENTER);
-				panelGestionarCliente.add(panelGCGestionar, BorderLayout.SOUTH);
-				panelGestionarCliente.updateUI();
-		    }
-		});
 		
+		// ********** Obteción de las columnas de la tabla por default **********		
+    	String tableName = objectToShow;
+    	if (tableName.equals("cliente"))
+    		tableName = "clientes";
+    	// Getting columns ot the table...
+		tableColumns = conexion.getTableColumns(tableName);		
 		
-		// ********** Panel del Formulario **********
-		
-		// Creacion del formulario para mostrar un cliente.
-		this.createFormShow("clientes");
 		scrollPaneGCForm = new JScrollPane(panelGCForm);
 		panelGestionarCliente.add(scrollPaneGCForm, BorderLayout.CENTER);
 		panelGCGestionar.setLayout(new GridLayout(0, 1, 0, 0));
@@ -257,11 +201,8 @@ public class GestionClientes extends JFrame{
 		contentPane.add(panelTabla, BorderLayout.CENTER);
 		panelTabla.setLayout(new BorderLayout(0, 0));
 		
-
-		// ********************** VISTA FILTROS ********************** 
 		
-		// Getting columns clientes relation...
-		ArrayList<String> tableColumns = conexion.getTableColumns("clientes");
+		// ********************** VISTA FILTROS ********************** 	
 		
 		JPanel panelFiltros = new JPanel();
 		panelTabla.add(panelFiltros, BorderLayout.NORTH);
@@ -270,7 +211,7 @@ public class GestionClientes extends JFrame{
 		JPanel panel_2 = new JPanel();
 		panelFiltros.add(panel_2, BorderLayout.NORTH);
 		
-		JLabel lblNewLabel = new JLabel("Filtrar : ");
+		JLabel lblNewLabel = new JLabel("Filtrar Clientes : ");
 		panel_2.add(lblNewLabel);
 		
 		JLabel lblId_1 = new JLabel("ID");
@@ -281,8 +222,8 @@ public class GestionClientes extends JFrame{
 		panel_2.add(comboBoxRelOp);
 		
 		textFieldFiltrarID = new JTextField();
-		panel_2.add(textFieldFiltrarID);
 		textFieldFiltrarID.setColumns(10);
+		panel_2.add(textFieldFiltrarID);
 		
 		JLabel labelComa1 = new JLabel(",");
 		panel_2.add(labelComa1);
@@ -292,7 +233,7 @@ public class GestionClientes extends JFrame{
 		tableColumns2.add("default");
 		tableColumns2.addAll(tableColumns);
 		
-		JComboBox comboBoxLike = new JComboBox();			
+		JComboBox comboBoxLike = new JComboBox();
 		Object[] model = tableColumns2.toArray();
 		comboBoxLike.setModel(new DefaultComboBoxModel(model));		
 		panel_2.add(comboBoxLike);
@@ -304,49 +245,245 @@ public class GestionClientes extends JFrame{
 		panel_2.add(textFieldLike);
 		textFieldLike.setColumns(10);
 		
-		JLabel labelComa2 = new JLabel(", agrupado por : ");
-		panel_2.add(labelComa2);
-		
-		JComboBox comboBoxGroupBy = new JComboBox();
-		comboBoxGroupBy.setModel(new DefaultComboBoxModel(model));		
-		panel_2.add(comboBoxGroupBy);
-		
 		JLabel lblOrden = new JLabel(", orden : ");
 		panel_2.add(lblOrden);
 		
-		JComboBox comboBoxOrderBy = new JComboBox();
-		comboBoxOrderBy.setModel(new DefaultComboBoxModel(new String[] {"default", "ascendente", "descendente"}));
+		JComboBox comboBoxOrderBy = new JComboBox();		
+		comboBoxOrderBy.setModel(new DefaultComboBoxModel(model));
 		panel_2.add(comboBoxOrderBy);
 		
-		JLabel label = new JLabel("     -->     ");
-		panel_2.add(label);
+		JComboBox comboBoxOrder = new JComboBox();
+		comboBoxOrder.setModel(new DefaultComboBoxModel(new String[] {"asc", "desc"}));
+		panel_2.add(comboBoxOrder);
 		
+		
+		// ********** COMBO BOX PARA SELECCIONAR TODO LOS CAMPOS ********** 
 		JCheckBox chckbxSelectAll = new JCheckBox("Todo");
+		chckbxSelectAll.setSelected(true);
+		chckbxSelectAll.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				if (chckbxSelectAll.isSelected()){
+					for (int i=0; i<listFieldsToShow.size(); i++)
+						listFieldsToShow.get("checkBox" + tableColumns.get(i)).setSelected(true);
+				}
+				else{
+					for (int i=0; i<listFieldsToShow.size(); i++)
+						listFieldsToShow.get("checkBox" + tableColumns.get(i)).setSelected(false);
+					listFieldsToShow.get("checkBoxidcliente").setSelected(true);
+					listFieldsToShow.get("checkBoxnombres").setSelected(true);
+					listFieldsToShow.get("checkBoxapellidos").setSelected(true);
+					listFieldsToShow.get("checkBoxdireccion").setSelected(true);
+					listFieldsToShow.get("checkBoxcorreo").setSelected(true);
+				}
+			}
+		});
 
 		
-		// ***************** CONSTRUCCION DE LA QUERY CON FILTROS *****************
+		// Botón de búsqueda con filtros...
 		JButton btnBuscar_1 = new JButton("Buscar");
+		btnBuscar_1.setPreferredSize(new Dimension(100, 23));		
+		panel_2.add(btnBuscar_1);
+		
+		JPanel panelMostrarCampos = new JPanel();
+		panelFiltros.add(panelMostrarCampos, BorderLayout.CENTER);
+		panelMostrarCampos.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));				
+		panelMostrarCampos.add(chckbxSelectAll);
+		
+		// AGREGACION DE LOS CHECK BOX PARA SELECCIONAR CAMPOS A MOSTRAR...
+		listFieldsToShow = new HashMap<String, JCheckBox>();
+		for (int i=0; i<tableColumns.size(); i++){			
+			JCheckBox chckbxField = new JCheckBox(tableColumns.get(i));
+			chckbxField.setSelected(true);
+			panelMostrarCampos.add(chckbxField);
+			listFieldsToShow.put("checkBox" + tableColumns.get(i), chckbxField);
+		}
+		
+		
+		ArrayList<String> tableColumnsToShow = new ArrayList<String>();		
+		for (int i=0; i<listFieldsToShow.size(); i++){
+			if (listFieldsToShow.get("checkBox" + tableColumns.get(i)).isSelected()){
+				tableColumnsToShow.add(tableColumns.get(i));
+			}			
+		}
+					
+		
+		
+		// ********* TABLA DE DATOS ********* 
+		
+		ControladorClientes controlClientes = ControladorClientes.getInstancia();
+		String query = "SELECT * FROM clientes;";
+		DefaultTableModel dataModel = controlClientes.getDataClientes(tableColumnsToShow, query);		
+		table = new JTable(dataModel);
+		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);		
+						
+		// ********* SCROLL PANE PARA LA TABLA *********
+		JScrollPane scrollPane = new JScrollPane(table);
+		table.setFillsViewportHeight(true);
+		panelTabla.add(scrollPane, BorderLayout.CENTER);
+		
+		
+		
+		// ********** CONSTRUCCION DEL FORMULARIO POR DEFAULT **********	
+		JSONObject firstObject = null;
+		try {
+			firstObject = controlClientes.getFirst();
+		} catch (Exception e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}    	
+		// Creating form for the first row of the table.
+    	createFormShow(tableName, firstObject);
+		scrollPaneGCForm = new JScrollPane(panelGCForm);
+		panelGestionarCliente.add(scrollPaneGCForm, BorderLayout.CENTER);
+		panelGestionarCliente.add(panelGCGestionar, BorderLayout.SOUTH);
+		panelGestionarCliente.updateUI();
+		
+		
+		
+		
+		JPanel panelOtrasGestiones = new JPanel();
+		panelTabla.add(panelOtrasGestiones, BorderLayout.SOUTH);
+		
+		
+		
+		
+		/**
+		 * ***************** CONDIGO DE LOS EVENTOS PRINCIPALES *****************
+		 */ 
+		
+		
+		// ***************** EVENTO DEL BOTON DE BUSQUEDA DEL FORMULARIO *****************
+		
+		btnBuscar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				// Getting id...
+				int id;
+				try{
+					id = Integer.parseInt(textField_1.getText());
+				}
+				catch (Exception err){
+					JOptionPane.showMessageDialog(null, "ID inválido..!", "CRM Clientes", JOptionPane.ERROR_MESSAGE);
+					textField_1.selectAll();
+					textField_1.requestFocusInWindow();
+					return;
+				}
+
+				// Get item selected from combo box.
+				objectToShow = comboBoxMostrar.getSelectedItem().toString().toLowerCase();
+		    	String tableName = objectToShow;
+		    	if (tableName.equals("cliente"))
+		    		tableName = "clientes";		    	
+
+				// Getting properties for this id.
+				String query = "SELECT * FROM " + tableName + " WHERE id" + objectToShow + " = " + id + ";" ;
+				JSONArray jsonRow = conexion.executeQuery(query);
+				if (jsonRow.length() == 0){
+					JOptionPane.showMessageDialog(null, "No se encontró ningún resultado\ncon el ID especificado..!", "CRM Clientes", JOptionPane.ERROR_MESSAGE);
+					textField_1.selectAll();
+					textField_1.requestFocusInWindow();
+					return;
+				}
+				
+				// Update form
+		    	ArrayList<String> formLabels = conexion.getTableColumns(tableName);
+				for (int i=0; i < formLabels.size(); i++){
+					String propertie = "null";
+					try {
+						propertie = jsonRow.getJSONObject(0).getString(formLabels.get(i));
+					} catch (JSONException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+						return;
+					}
+					listFormFields.get("textField" + formLabels.get(i)).setText(propertie);
+				}
+								
+			}
+		});	
+		
+		
+		
+		// ********** EVENTO DEL COMBO BOX AL SELECCIONAR UNA TABLA ********** 
+		
+		comboBoxMostrar.addActionListener (new ActionListener () {
+		    public void actionPerformed(ActionEvent e) {
+		    					
+		    	objectToShow = comboBoxMostrar.getSelectedItem().toString().toLowerCase();
+		    	panelGestionarCliente.removeAll();		    					
+		    	panelGestionarCliente.add(panelGCBuscar, BorderLayout.NORTH);
+		    	String tableName = objectToShow;
+		    	if (tableName.equals("cliente"))
+		    		tableName = "clientes";
+
+		    	// ************** CONSTRUCCION DE LA TABLA **************
+		    	// Getting columns ot the table...
+				tableColumns = conexion.getTableColumns(tableName);
+				// Getting the model for the table
+				String query = "SELECT * FROM " + tableName + ";";
+				ControladorClientes controlClientes = ControladorClientes.getInstancia();
+				DefaultTableModel dataModel = controlClientes.getDataClientes(tableColumns, query);				
+				table.setModel(dataModel);
+				table.updateUI();
+				
+				// Cuando se seleccione la tabla clientes, se actualiza los checkboxes de seleccion.
+				if (tableName.equals("clientes")){
+					chckbxSelectAll.setSelected(true);
+					for (int i=0; i<listFieldsToShow.size(); i++)
+						listFieldsToShow.get("checkBox" + tableColumns.get(i)).setSelected(true);
+				}
+				
+		    	
+				// Getting first row of the table.
+				JSONObject firstObject = null;
+				try {
+					firstObject = controlClientes.getFirst();
+				} catch (Exception e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+		    	
+				// Creating form for the first row of the table.
+		    	createFormShow(tableName, firstObject);
+				scrollPaneGCForm = new JScrollPane(panelGCForm);
+				panelGestionarCliente.add(scrollPaneGCForm, BorderLayout.CENTER);
+				panelGestionarCliente.add(panelGCGestionar, BorderLayout.SOUTH);
+				panelGestionarCliente.updateUI();
+								
+		    }
+		});
+
+		
+		
+		// ***************** EVENTO DEL BOTONT CON CONSULTA CON FILTROS *****************		
+		
 		btnBuscar_1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				
+				// La búsqueda con filtros sólo funciona sobre la tabla clientes..!
+				if (!objectToShow.equals("cliente")){
+					JOptionPane.showMessageDialog(null, "La búsqueda con filtros sólo\nfunciona sobre la tabla clientes..!", "CRM Clientes", JOptionPane.ERROR_MESSAGE);					
+					comboBoxMostrar.requestFocusInWindow();
+					return;
+				}
 				ArrayList<String> tableColumnsToShow = new ArrayList<String>();				
 				// Consult construction.
 				String query = "SELECT ";
 				// Columns for select...				
 				if (!chckbxSelectAll.isSelected()){									
-					for (int i=0; i<listFieldsToShow.size(); i++){
-						if (listFieldsToShow.get("checkBox" + tableColumns.get(i)).isSelected()){
-							query += tableColumns.get(i) + ", ";
+					for (int i=0; i<listFieldsToShow.size(); i++)
+						if (listFieldsToShow.get("checkBox" + tableColumns.get(i)).isSelected())							
 							tableColumnsToShow.add(tableColumns.get(i));
-						}
-					}				
-					query = query.substring(0, query.length()-2);		// Delete the comma at the end of the line.
 				}
 				else{
-					query += " *";
+					tableColumnsToShow.addAll(tableColumns);					
 				}
 				
-				query += " FROM clientes ";
+				/**
+				 * En la query se le dice que seleccione todo porque el metodo que crea el modelo
+				 * para la tabla filtra las columnas en base a la variable tableColumnsToShow.
+				 */
+				query += " * FROM clientes ";			
+				
 				
 				// ID Filter
 				boolean whereExist = false;
@@ -369,87 +506,75 @@ public class GestionClientes extends JFrame{
 					}					
 				}
 					
-				// SOME filter
-				if (!comboBoxLike.getSelectedItem().equals("default")){	
+				// LIKE filter
+				if (!comboBoxLike.getSelectedItem().equals("default")){
 					if (!whereExist)
-						query += " WHERE " + comboBoxLike.getSelectedItem().toString() + " LIKE " + textFieldLike.getText();
+						query += " WHERE " + comboBoxLike.getSelectedItem().toString() + " ILIKE '%" + textFieldLike.getText() + "%'";
 					else
-						query += " AND " + comboBoxLike.getSelectedItem().toString() + " LIKE " + textFieldLike.getText();
-				}
-				
-				// Group By Filter
-				if (!comboBoxGroupBy.getSelectedItem().equals("default")){
-					query += " GROUP BY " + comboBoxGroupBy.getSelectedItem().toString();
+						query += " AND " + comboBoxLike.getSelectedItem().toString() + " ILIKE '%" + textFieldLike.getText() + "%'";
 				}
 				
 				// Order By Filter
-				if (!comboBoxOrderBy.getSelectedItem().equals("default")){
-					String filter = (comboBoxOrderBy.getSelectedItem().equals("ascendente"))? "ASC": "DESC";
-					query += " ORDER BY " + filter;
+				if (!comboBoxOrderBy.getSelectedItem().equals("default")){					
+					query += " ORDER BY " + comboBoxOrderBy.getSelectedItem() + " " + comboBoxOrder.getSelectedItem();
 				}
 				
 				query += ";";
 				System.out.println(query);
 
-				// Getting a model
-				
-				ControladorClientes controlClientes = new ControladorClientes();
-				DefaultTableModel dataModel = controlClientes.getDataClientes(tableColumnsToShow, query);		
+				// Getting the model for the table				
+				ControladorClientes controlClientes = ControladorClientes.getInstancia();
+				DefaultTableModel dataModel = controlClientes.getDataClientes(tableColumnsToShow, query);				
 				table.setModel(dataModel);
-				table.updateUI();				
+				table.updateUI();
 			}
 		});
-		panel_2.add(btnBuscar_1);
 		
-		JPanel panelMostrarCampos = new JPanel();
-		panelFiltros.add(panelMostrarCampos, BorderLayout.CENTER);
-		panelMostrarCampos.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
+		
+		
+		// ***************** EVENTO DE SELECCION DE UNA FILA DE LA TABLA *****************
+		table.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				int indice = table.getSelectedRow();
+				try {					
+			    	objectToShow = comboBoxMostrar.getSelectedItem().toString().toLowerCase();			    	
+			    	String tableName = objectToShow;
+			    	if (tableName.equals("cliente"))
+			    		tableName = "clientes";
+			    	
+			    	// Getting columns ot the table...
+					tableColumns = conexion.getTableColumns(tableName);
+
+					// Update form
+					JSONObject jsonRow = controlClientes.getElement(indice);
+					ArrayList<String> formLabels = conexion.getTableColumns(tableName);
+					for (int i=0; i < formLabels.size(); i++){
+						String propertie = "null";
+						try {
+							propertie = jsonRow.getString(formLabels.get(i));
+						} catch (JSONException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+							return;
+						}
+						listFormFields.get("textField" + formLabels.get(i)).setText(propertie);
+					}					
+					
+				} catch (Exception e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 				
-		panelMostrarCampos.add(chckbxSelectAll);
-		
-		// Check boxes for columns to show.
-		listFieldsToShow = new HashMap<String, JCheckBox>();
-		for (int i=0; i<tableColumns.size(); i++){			
-			JCheckBox chckbxField = new JCheckBox(tableColumns.get(i));
-			if (i < 4)
-				chckbxField.setSelected(true);
-			else
-				chckbxField.setSelected(false);
-			panelMostrarCampos.add(chckbxField);
-			listFieldsToShow.put("checkBox" + tableColumns.get(i), chckbxField);
-		}
+			}
+		});
 		
 		
-		
-		ArrayList<String> tableColumnsToShow = new ArrayList<String>();		
-		for (int i=0; i<listFieldsToShow.size(); i++){
-			if (listFieldsToShow.get("checkBox" + tableColumns.get(i)).isSelected()){
-				tableColumnsToShow.add(tableColumns.get(i));
-			}			
-		}
-		
-		
-		// ********* TABLA DE DATOS ********* 
-		ControladorClientes controlClientes = new ControladorClientes();
-		String query = "SELECT * FROM clientes;";
-		DefaultTableModel dataModel = controlClientes.getDataClientes(tableColumnsToShow, query);		
-		table = new JTable(dataModel);
-		
-		// ********* SCROLL PANE PARA LA TABLA *********
-		JScrollPane scrollPane = new JScrollPane(table);
-		table.setFillsViewportHeight(true);
-		panelTabla.add(scrollPane, BorderLayout.CENTER);
-		
-		JPanel panelOtrasGestiones = new JPanel();
-		panelTabla.add(panelOtrasGestiones, BorderLayout.SOUTH);
-		
-		JLabel lblVerTabla = new JLabel("Ver Tabla : ");
-		panelOtrasGestiones.add(lblVerTabla);
-		
-		JComboBox comboBox = new JComboBox();
-		comboBox.setModel(new DefaultComboBoxModel(new String[] {"clientes", "categoria", "estado", "departamento", "pais", "telefono"}));
-		panelOtrasGestiones.add(comboBox);
 	}
+	
+	
+	
+	
 	
 	private void onClose(){
 		System.out.println("Saliendo del programa...");
@@ -461,11 +586,13 @@ public class GestionClientes extends JFrame{
   		System.exit(0);		
 	}
 	
-	public void createFormShow(String tableName){
-
-		// Getting first row from table.
-		String query = "SELECT * FROM " + tableName + " WHERE id" + objectToShow + " = 0;" ;
-		JSONArray jsonFirstRow = conexion.executeQuery(query);
+	
+	/**
+	 * Crea el formulario para mostrar un objecto que podrá ser gestionado.
+	 * @param tableName
+	 * @param object
+	 */
+	public void createFormShow(String tableName, JSONObject object){		
 		ArrayList<String> formLabels = conexion.getTableColumns(tableName);
 		int numPairs = formLabels.size();
 		//Create and populate the panel.
@@ -474,15 +601,17 @@ public class GestionClientes extends JFrame{
 		for (int i = 0; i < numPairs; i++) {
 		    JLabel label = new JLabel(formLabels.get(i) + " : ", JLabel.TRAILING);		    
 		    panelGCForm.add(label);
-		    String hola = "null";
+		    String rowLabel = "null";
 		    try {
-				hola = jsonFirstRow.getJSONObject(0).getString(formLabels.get(i));
+				rowLabel = object.getString(formLabels.get(i));
 			} catch (JSONException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
+				JOptionPane.showMessageDialog(null, "Ocurrió un error al intentar\nllenar el formulario..!", "CRM Clientes", JOptionPane.ERROR_MESSAGE);				
+				return;
 			}
-		    JTextField textField = new JTextField(hola);
-		    label.setLabelFor(textField);		    
+		    JTextField textField = new JTextField(rowLabel);
+		    label.setLabelFor(textField);
 		    panelGCForm.add(textField);
 		    listFormFields.put("textField" + formLabels.get(i), textField);
 		}
@@ -491,7 +620,8 @@ public class GestionClientes extends JFrame{
 		SpringUtilities.makeCompactGrid(panelGCForm,
 		                                numPairs, 2, //rows, cols
 		                                6, 6,        //initX, initY
-		                                6, 6);       //xPad, yPad							
+		                                6, 6);       //xPad, yPad		
+				
 		
 	} 
 }
