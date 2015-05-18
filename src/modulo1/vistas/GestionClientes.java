@@ -83,6 +83,8 @@ public class GestionClientes extends JFrame{
 	private JTextField textFieldFiltrarID;
 	private JTextField textFieldLike;
 	private ArrayList<String> tableColumns;
+	private ControladorClientes controlClientes;
+	private JComboBox comboBoxMostrar;		// Selección de la tabla a mostrar.
 
 	/**
 	 * Create the frame.
@@ -97,7 +99,7 @@ public class GestionClientes extends JFrame{
 		setContentPane(contentPane);
 		contentPane.setLayout(new BorderLayout(0, 0));
 		
-		
+		// Conexión con postgress...
 		conexion = ConexionPostgres.getInstancia();
 		
 		// Confirmacion de salida.
@@ -135,7 +137,7 @@ public class GestionClientes extends JFrame{
 		panelGCBuscar.add(lblMostrar);
 		
 		// Combo Box para el elemento a mostrar en el formulario.
-		JComboBox comboBoxMostrar = new JComboBox();
+		comboBoxMostrar = new JComboBox();
 		comboBoxMostrar.setModel(new DefaultComboBoxModel(new String[] {"Cliente", "Categoria", "Estado", "Pais", "Departamento", "Telefono"}));
 		panelGCBuscar.add(comboBoxMostrar);
 		
@@ -167,17 +169,99 @@ public class GestionClientes extends JFrame{
 		JPanel panelGCGestionarNavegar = new JPanel();
 		panelGCGestionar.add(panelGCGestionarNavegar);
 		
-		JButton button = new JButton("<<");
-		panelGCGestionarNavegar.add(button);
+		JButton buttonFirst = new JButton("<<");
+		buttonFirst.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				JSONObject jsonRow;
+				try {
+					jsonRow = controlClientes.getFirst();
+					if (jsonRow == null){
+						JOptionPane.showMessageDialog(null, "Ocurrió un error al intentar\nobtener el elemento de la tabla..!", "CRM Clientes", JOptionPane.ERROR_MESSAGE);							
+						return;
+					}
+				} catch (Exception e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+					JOptionPane.showMessageDialog(null, "Ocurrió un error al intentar\nobtener el elemento de la tabla..!", "CRM Clientes", JOptionPane.ERROR_MESSAGE);							
+					return;
+				}
+				
+				// Si no no hubo error, actualizar el formulario.
+				updateForm(jsonRow);				
+			}
+		});
+		panelGCGestionarNavegar.add(buttonFirst);
 		
-		JButton button_1 = new JButton("<");
-		panelGCGestionarNavegar.add(button_1);
+		JButton buttonPrevious = new JButton("<");
+		buttonPrevious.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				int indice = controlClientes.getPosActual() - 1;				
+				JSONObject jsonRow;
+				try {
+					jsonRow = controlClientes.getElement(indice);
+					if (jsonRow == null){
+						JOptionPane.showMessageDialog(null, "Ocurrió un error al intentar\nobtener el elemento de la tabla..!", "CRM Clientes", JOptionPane.ERROR_MESSAGE);							
+						return;
+					}
+				} catch (Exception e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+					JOptionPane.showMessageDialog(null, "Ocurrió un error al intentar\nobtener el elemento de la tabla..!", "CRM Clientes", JOptionPane.ERROR_MESSAGE);							
+					return;
+				}
+				
+				// Si no no hubo error, actualizar el formulario.
+				updateForm(jsonRow);
+			}
+		});
+		panelGCGestionarNavegar.add(buttonPrevious);
 		
-		JButton button_2 = new JButton(">");
-		panelGCGestionarNavegar.add(button_2);
+		JButton buttonNext = new JButton(">");
+		buttonNext.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				int indice = controlClientes.getPosActual() + 1;
+				JSONObject jsonRow;
+				try {
+					jsonRow = controlClientes.getElement(indice);
+					if (jsonRow == null){
+						JOptionPane.showMessageDialog(null, "Ocurrió un error al intentar\nobtener el elemento de la tabla..!", "CRM Clientes", JOptionPane.ERROR_MESSAGE);							
+						return;
+					}
+				} catch (Exception e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+					JOptionPane.showMessageDialog(null, "Ocurrió un error al intentar\nobtener el elemento de la tabla..!", "CRM Clientes", JOptionPane.ERROR_MESSAGE);							
+					return;
+				}
+				
+				// Si no no hubo error, actualizar el formulario.
+				updateForm(jsonRow);
+			}
+		});
+		panelGCGestionarNavegar.add(buttonNext);
 		
-		JButton button_3 = new JButton(">>");
-		panelGCGestionarNavegar.add(button_3);
+		JButton buttonLast = new JButton(">>");
+		buttonLast.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				JSONObject jsonRow;
+				try {
+					jsonRow = controlClientes.getLast();
+					if (jsonRow == null){
+						JOptionPane.showMessageDialog(null, "Ocurrió un error al intentar\nobtener el elemento de la tabla..!", "CRM Clientes", JOptionPane.ERROR_MESSAGE);							
+						return;
+					}
+				} catch (Exception e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+					JOptionPane.showMessageDialog(null, "Ocurrió un error al intentar\nobtener el elemento de la tabla..!", "CRM Clientes", JOptionPane.ERROR_MESSAGE);							
+					return;
+				}
+				
+				// Si no no hubo error, actualizar el formulario.
+				updateForm(jsonRow);					
+			}
+		});
+		panelGCGestionarNavegar.add(buttonLast);
 		
 		JPanel panelGCGestionarGestionar = new JPanel();
 		panelGCGestionar.add(panelGCGestionarGestionar);
@@ -311,7 +395,7 @@ public class GestionClientes extends JFrame{
 		
 		// ********* TABLA DE DATOS ********* 
 		
-		ControladorClientes controlClientes = ControladorClientes.getInstancia();
+		controlClientes = ControladorClientes.getInstancia();
 		String query = "SELECT * FROM clientes;";
 		DefaultTableModel dataModel = controlClientes.getDataClientes(tableColumnsToShow, query);		
 		table = new JTable(dataModel);
@@ -420,8 +504,7 @@ public class GestionClientes extends JFrame{
 		    	// Getting columns ot the table...
 				tableColumns = conexion.getTableColumns(tableName);
 				// Getting the model for the table
-				String query = "SELECT * FROM " + tableName + ";";
-				ControladorClientes controlClientes = ControladorClientes.getInstancia();
+				String query = "SELECT * FROM " + tableName + ";";				
 				DefaultTableModel dataModel = controlClientes.getDataClientes(tableColumns, query);				
 				table.setModel(dataModel);
 				table.updateUI();
@@ -455,7 +538,7 @@ public class GestionClientes extends JFrame{
 
 		
 		
-		// ***************** EVENTO DEL BOTONT CON CONSULTA CON FILTROS *****************		
+		// ***************** EVENTO DEL BOTON CON CONSULTA CON FILTROS *****************		
 		
 		btnBuscar_1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -522,8 +605,7 @@ public class GestionClientes extends JFrame{
 				query += ";";
 				System.out.println(query);
 
-				// Getting the model for the table				
-				ControladorClientes controlClientes = ControladorClientes.getInstancia();
+				// Getting the model for the table
 				DefaultTableModel dataModel = controlClientes.getDataClientes(tableColumnsToShow, query);				
 				table.setModel(dataModel);
 				table.updateUI();
@@ -537,35 +619,22 @@ public class GestionClientes extends JFrame{
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				int indice = table.getSelectedRow();
-				try {					
-			    	objectToShow = comboBoxMostrar.getSelectedItem().toString().toLowerCase();			    	
-			    	String tableName = objectToShow;
-			    	if (tableName.equals("cliente"))
-			    		tableName = "clientes";
-			    	
-			    	// Getting columns ot the table...
-					tableColumns = conexion.getTableColumns(tableName);
-
-					// Update form
-					JSONObject jsonRow = controlClientes.getElement(indice);
-					ArrayList<String> formLabels = conexion.getTableColumns(tableName);
-					for (int i=0; i < formLabels.size(); i++){
-						String propertie = "null";
-						try {
-							propertie = jsonRow.getString(formLabels.get(i));
-						} catch (JSONException e1) {
-							// TODO Auto-generated catch block
-							e1.printStackTrace();
-							return;
-						}
-						listFormFields.get("textField" + formLabels.get(i)).setText(propertie);
-					}					
-					
+				JSONObject jsonRow;
+				try {
+					jsonRow = controlClientes.getElement(indice);
+					if (jsonRow == null){
+						JOptionPane.showMessageDialog(null, "Ocurrió un error al intentar\nobtener el elemento de la tabla..!", "CRM Clientes", JOptionPane.ERROR_MESSAGE);							
+						return;
+					}
 				} catch (Exception e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
+					JOptionPane.showMessageDialog(null, "Ocurrió un error al intentar\nobtener el elemento de la tabla..!", "CRM Clientes", JOptionPane.ERROR_MESSAGE);							
+					return;
 				}
 				
+				// Si no no hubo error, actualizar el formulario.
+				updateForm(jsonRow);
 			}
 		});
 		
@@ -575,7 +644,9 @@ public class GestionClientes extends JFrame{
 	
 	
 	
-	
+	/**
+	 * Método que se ejecuta cuando se cierra el programa. Sirve para cerrar la conexión.
+	 */
 	private void onClose(){
 		System.out.println("Saliendo del programa...");
 		if (conexion != null){
@@ -611,6 +682,7 @@ public class GestionClientes extends JFrame{
 				return;
 			}
 		    JTextField textField = new JTextField(rowLabel);
+		    textField.setEditable(false);
 		    label.setLabelFor(textField);
 		    panelGCForm.add(textField);
 		    listFormFields.put("textField" + formLabels.get(i), textField);
@@ -621,7 +693,36 @@ public class GestionClientes extends JFrame{
 		                                numPairs, 2, //rows, cols
 		                                6, 6,        //initX, initY
 		                                6, 6);       //xPad, yPad		
-				
-		
 	} 
+	
+	
+	/**
+	 * Método que actualiza el formulario.
+	 * @param itemToShow
+	 */
+	private void updateForm(JSONObject jsonRow){
+    	objectToShow = comboBoxMostrar.getSelectedItem().toString().toLowerCase();
+    	String tableName = objectToShow;
+    	if (tableName.equals("cliente"))
+    		tableName = "clientes";
+    	
+    	// Getting columns ot the table...
+		tableColumns = conexion.getTableColumns(tableName);
+
+		// Update form			
+		ArrayList<String> formLabels = conexion.getTableColumns(tableName);
+		for (int i=0; i < formLabels.size(); i++){
+			String propertie = "null";
+			try {
+				propertie = jsonRow.getString(formLabels.get(i));
+			} catch (Exception e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+				JOptionPane.showMessageDialog(null, "Ocurrió un error al intentar\nllenar el formulario..!", "CRM Clientes", JOptionPane.ERROR_MESSAGE);							
+				return;
+			}
+			listFormFields.get("textField" + formLabels.get(i)).setText(propertie);
+		}
+
+	}
 }
