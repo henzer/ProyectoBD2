@@ -672,16 +672,20 @@ public class GestionClientes extends JFrame{
 		for (int i = 0; i < numPairs; i++) {
 		    JLabel label = new JLabel(formLabels.get(i) + " : ", JLabel.TRAILING);		    
 		    panelGCForm.add(label);
-		    String rowLabel = "null";
-		    try {
-				rowLabel = object.getString(formLabels.get(i));
-			} catch (JSONException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-				JOptionPane.showMessageDialog(null, "Ocurrió un error al intentar\nllenar el formulario..!", "CRM Clientes", JOptionPane.ERROR_MESSAGE);				
-				return;
-			}
-		    JTextField textField = new JTextField(rowLabel);
+		    JTextField textField = new JTextField();
+		    if (object != null){
+			    String rowLabel = "null";
+			    try {
+					rowLabel = object.getString(formLabels.get(i));
+				} catch (JSONException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+					JOptionPane.showMessageDialog(null, "Ocurrió un error al intentar\nllenar el formulario..!", "CRM Clientes", JOptionPane.ERROR_MESSAGE);				
+					return;
+				}
+			    textField.setText(rowLabel);
+		    }
+
 		    textField.setEditable(false);
 		    label.setLabelFor(textField);
 		    panelGCForm.add(textField);
@@ -693,6 +697,9 @@ public class GestionClientes extends JFrame{
 		                                numPairs, 2, //rows, cols
 		                                6, 6,        //initX, initY
 		                                6, 6);       //xPad, yPad		
+		
+		if (object != null)
+			table.setRowSelectionInterval(controlClientes.getPosActual(), controlClientes.getPosActual());
 	} 
 	
 	
@@ -724,6 +731,5 @@ public class GestionClientes extends JFrame{
 			listFormFields.get("textField" + formLabels.get(i)).setText(propertie);
 		}
 		table.setRowSelectionInterval(controlClientes.getPosActual(), controlClientes.getPosActual());
-
 	}
 }
