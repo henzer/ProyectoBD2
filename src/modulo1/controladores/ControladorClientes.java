@@ -11,23 +11,27 @@ import org.json.JSONObject;
 import modulo1.conexion.ConexionPostgres;
 import modulo2.conexion.Conexion;
 
-public class ControladorClientes {
+public class ControladorClientes
+{
 	private JSONArray dataActual;
 	private int posActual;
 	
 	private static ControladorClientes instancia;
-	public static ControladorClientes getInstancia(){
+	public static ControladorClientes getInstancia()
+	{
 		if(instancia==null)
 			instancia = new ControladorClientes();
 		return instancia;
 	}
 	
-	public ControladorClientes(){
+	public ControladorClientes()
+	{
 		dataActual = new JSONArray();
 	}
 	
 	//
-	public DefaultTableModel getDataClientes(List<String> columnas, String query){
+	public DefaultTableModel getDataClientes(List<String> columnas, String query)
+	{
 		DefaultTableModel model = new DefaultTableModel();
 		dataActual = ConexionPostgres.getInstancia().executeQuery(query);
 		for(String header: columnas){
@@ -103,6 +107,5 @@ public class ControladorClientes {
 		JSONArray result = ConexionPostgres.getInstancia().executeQuery("SELECT * FROM metadata_clientes;");
 		return result;
 	}
-	
-	
 }
+
