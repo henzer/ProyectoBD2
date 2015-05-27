@@ -11,8 +11,8 @@ public class Main {
 	public static void main(String args[]) throws IOException{
 		try{
 		   UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		   //Ventana v = new Ventana();
-		   //v.setVisible(true);
+		   Ventana v = new Ventana();
+		   v.setVisible(true);
 		   ControladorClientes c = new ControladorClientes();
 		   //c.getDataClientes(Arrays.asList("nombres", "apellidos", "correo"));
 		}
