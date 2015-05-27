@@ -60,6 +60,8 @@ public class Ventana extends JFrame {
 	private JComboBox cmbRetweets;
 	private JComboBox cmbMencionados;
 	private JComboBox cmbFecha;
+	private JLabel lblResultados;
+	private JLabel lblCantidad;
 	
 	
 	
@@ -248,6 +250,14 @@ public class Ventana extends JFrame {
 		txtFecha.setBounds(56, 227, 97, 20);
 		filtros.add(txtFecha);
 		
+		lblResultados = new JLabel("Resultados:");
+		lblResultados.setBounds(30, 504, 57, 14);
+		filtros.add(lblResultados);
+		
+		lblCantidad = new JLabel("0");
+		lblCantidad.setBounds(93, 504, 57, 14);
+		filtros.add(lblCantidad);
+		
 		JScrollPane scrollPane = new JScrollPane();
 		contentPane.add(scrollPane, BorderLayout.CENTER);
 		marcarTodos();
@@ -264,6 +274,7 @@ public class Ventana extends JFrame {
 	public void loadData(){
 		try {
 			tabla.setModel(controlador.getInfoTable(getFiltros(), camposSeleccionados()));
+			lblCantidad.setText(""+tabla.getModel().getRowCount());
 		} catch (Exception e) {
 			JOptionPane.showMessageDialog(this, e.getMessage());
 			//e.printStackTrace();
