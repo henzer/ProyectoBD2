@@ -709,7 +709,7 @@ public class GestionClientes extends JFrame{
     	// Getting columns ot the table...
 		tableColumns = conexion.getTableColumns(tableName);
 
-		// Update form			
+		// Update form
 		ArrayList<String> formLabels = conexion.getTableColumns(tableName);
 		for (int i=0; i < formLabels.size(); i++){
 			String propertie = "null";
