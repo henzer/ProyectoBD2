@@ -357,7 +357,8 @@ public class GestionClientes extends JFrame
 		// ************** NAVEGATION BUTTONS IN FORM ************** 
 		
 		// ************** Button 'GO FIRST' **************
-		JButton buttonFirst = new JButton("<<");
+		JButton buttonFirst = new JButton(new ImageIcon("system_images/first.png"));
+		buttonFirst.setToolTipText("Primero");
 		buttonFirst.addActionListener(new ActionListener() 
 		{
 			public void actionPerformed(ActionEvent e) 
@@ -387,7 +388,8 @@ public class GestionClientes extends JFrame
 		panelGCGestionarNavegar.add(buttonFirst);
 		
 		// ************** Button 'GO PREVIOUS' **************
-		JButton buttonPrevious = new JButton("<");
+		JButton buttonPrevious = new JButton(new ImageIcon("system_images/previous.png"));
+		buttonPrevious.setToolTipText("Anterior");
 		buttonPrevious.addActionListener(new ActionListener() 
 		{
 			public void actionPerformed(ActionEvent e) 
@@ -418,7 +420,8 @@ public class GestionClientes extends JFrame
 		panelGCGestionarNavegar.add(buttonPrevious);
 		
 		// ************** Button 'GO NEXT' **************
-		JButton buttonNext = new JButton(">");
+		JButton buttonNext = new JButton(new ImageIcon("system_images/next.png"));
+		buttonNext.setToolTipText("Siguiente");
 		buttonNext.addActionListener(new ActionListener() 
 		{
 			public void actionPerformed(ActionEvent e)
@@ -449,7 +452,8 @@ public class GestionClientes extends JFrame
 		panelGCGestionarNavegar.add(buttonNext);
 		
 		// ************** Button 'GO LAST' **************
-		JButton buttonLast = new JButton(">>");
+		JButton buttonLast = new JButton(new ImageIcon("system_images/last.png"));
+		buttonLast.setToolTipText("\u00DAltimo");
 		buttonLast.addActionListener(new ActionListener() 
 		{
 			public void actionPerformed(ActionEvent e) 
@@ -489,15 +493,31 @@ public class GestionClientes extends JFrame
 		
 		
 		// ********** Panel de Gestión **********
-		
-		JButton btnNuevo = new JButton("Nuevo");
+		//ImageIcon imageNewUser = new ImageIcon("system_images/add_user.png");
+		JButton btnNuevo = new JButton(new ImageIcon("system_images/add_user.png"));
+		btnNuevo.setToolTipText("Agregar nuevo cliente");
+		btnNuevo.setPreferredSize(new Dimension(60,50));
 		panelGCGestionarGestionar.add(btnNuevo);
-		JButton btnEditar = new JButton("Editar");
+		JButton btnEditar = new JButton(new ImageIcon("system_images/edit_user.png"));
+		btnEditar.setToolTipText("Editar cliente");
+		btnEditar.setPreferredSize(new Dimension(60,50));
 		panelGCGestionarGestionar.add(btnEditar);
-		JButton btnGuardar = new JButton("Agregar");
+		JButton btnGuardar = new JButton(new ImageIcon("system_images/store_user.png"));
+		btnGuardar.setToolTipText("Guardar cliente");
+		btnGuardar.setPreferredSize(new Dimension(60,50));
 		panelGCGestionarGestionar.add(btnGuardar);
-		JButton btnEliminar = new JButton("Eliminar");
+		JButton btnEliminar = new JButton(new ImageIcon("system_images/delete_user.png"));
+		btnEliminar.setToolTipText("Eliminar cliente");
+		btnEliminar.setPreferredSize(new Dimension(60,50));
 		panelGCGestionarGestionar.add(btnEliminar);
+		JButton btnNuevoCampo = new JButton(new ImageIcon("system_images/add_column.png"));
+		btnNuevoCampo.setToolTipText("Agregar nuevo campo");
+		btnNuevoCampo.setPreferredSize(new Dimension(60,50));
+		panelGCGestionarGestionar.add(btnNuevoCampo);
+		JButton btnVerTweets = new JButton(new ImageIcon("system_images/user_tweets.png"));
+		btnVerTweets.setToolTipText("Ver tweets de cliente");
+		btnVerTweets.setPreferredSize(new Dimension(60,50));
+		panelGCGestionarGestionar.add(btnVerTweets);		
 		
 		panelGestionarCliente.add(panelGCGestionar, BorderLayout.SOUTH);
 		
@@ -943,11 +963,15 @@ public class GestionClientes extends JFrame
     }
     
     
-    
+    /**
+     * Resize an image to 100x100 pixeles.
+     * @param userPhotoUrl
+     * @return
+     */
     public ImageIcon getPhotoResized(String userPhotoUrl){
     	BufferedImage originalImage = null;
 		try {
-			originalImage = ImageIO.read(new File("images/" + userPhotoUrl));
+			originalImage = ImageIO.read(new File("user_photos/" + userPhotoUrl));
 		} catch (IOException e3) {
 			JOptionPane.showMessageDialog(null, "No se encontró la foto del cliente..!", "CRM Clientes", JOptionPane.ERROR_MESSAGE);
 			// TODO Auto-generated catch block
