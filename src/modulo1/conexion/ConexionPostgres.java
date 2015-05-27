@@ -108,22 +108,24 @@ public class ConexionPostgres
 			resultSet = statement.executeQuery(query);		// Execute query.			
 			jsonResult = new JSONArray();					// Instance JSON result.
 			// Iterate result set.
+			System.out.println("Cantidad de columnas: " + resultSet.getMetaData().getColumnCount());
 			while (resultSet.next()){
 				JSONObject jsonRow = new JSONObject();
 				int columnCount =  resultSet.getMetaData().getColumnCount();
+				
+				
 				for (int i=1; i<columnCount+1; i++){
 					String key = resultSet.getMetaData().getColumnLabel(i);
 					String value = resultSet.getString(i);
+					System.out.println(key);
 					try {
 						jsonRow.put(key, value);						
 					} catch (JSONException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
-					}					
-					//System.out.println("columnLabel: " + resultSet.getMetaData().getColumnLabel(i));					
-					//System.out.println("content: " + resultSet.getString(i));
-					//System.out.println("type: " + resultSet.getMetaData().getColumnTypeName(i));
+					}
 				}
+				
 				jsonResult.put(jsonRow);
 			}
 			resultSet.close();
@@ -135,6 +137,8 @@ public class ConexionPostgres
 			// e.printStackTrace();
 			return null;
 		}
+		
+		System.out.println("data\n" + jsonResult);
 		
 		return jsonResult;
 	}

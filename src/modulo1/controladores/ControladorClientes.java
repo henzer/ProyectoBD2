@@ -40,6 +40,7 @@ public class ControladorClientes
 		try {
 			for(int i=0; i<dataActual.length(); i++){
 				JSONObject elemento = (JSONObject)dataActual.get(i);
+				System.out.println(elemento);
 				Object [] row = new Object[columnas.size()];
 				for(int j=0; j<columnas.size(); j++){
 					row[j] = elemento.get(columnas.get(j));
