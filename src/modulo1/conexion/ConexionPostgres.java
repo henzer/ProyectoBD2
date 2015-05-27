@@ -49,9 +49,9 @@ public class ConexionPostgres
 		connection = null;
 		try
 		{
-			//connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/ProyectoCRM", "postgres", "cesarlui93");
+			connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/ProyectoCRM", "postgres", "cesarlui93");
 			//connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/ProyectoCRM", "postgres", "henzer");
-			connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/CRM-Clientes", "postgres", "ESPE125rare");
+			//connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/CRM-Clientes", "postgres", "ESPE125rare");
 		}
 		catch (SQLException e)
 		{

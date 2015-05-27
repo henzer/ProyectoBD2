@@ -2,8 +2,13 @@ package modulo1.vistas;
 
 import java.awt.BorderLayout;
 import java.awt.EventQueue;
+import java.awt.Graphics2D;
+import java.awt.Image;
+import java.awt.MediaTracker;
 import java.awt.Rectangle;
+import java.awt.Toolkit;
 
+import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -32,6 +37,7 @@ import java.awt.GridLayout;
 
 import javax.swing.border.BevelBorder;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
 import javax.swing.JSplitPane;
@@ -58,6 +64,8 @@ import org.json.JSONObject;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeEvent;
+import java.io.File;
+import java.io.IOException;
 import java.awt.event.ItemListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.InputMethodListener;
@@ -65,6 +73,7 @@ import java.awt.event.InputMethodEvent;
 import java.awt.Insets;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
 
 import javax.swing.ListSelectionModel;
 
@@ -78,7 +87,6 @@ public class GestionClientes extends JFrame
 	private JPanel panelGCForm;
 	private JScrollPane scrollPaneGCForm;
 	private JPanel panelGestionarCliente;
-	private String objectToShow = "cliente";
 	private Map<String, JTextField> listFormFields;
 	private Map<String, JCheckBox> listFieldsToShow;
 	private JTextField textFieldFiltrarID;
@@ -86,6 +94,10 @@ public class GestionClientes extends JFrame
 	private ArrayList<String> tableColumns;
 	private ControladorClientes controlClientes;
 	private JComboBox comboBoxMostrar;		// Selección de la tabla a mostrar.
+	private JPanel panelUserImage;
+	private JPanel panelFormObject;
+	private JLabel labelPhotoImage;
+	private String currentTable = "cliente";
 
 	/**
 	 * Create the frame.
@@ -133,9 +145,7 @@ public class GestionClientes extends JFrame
 		
 		// Paneles de Gestionar Cliente.
 		JPanel panelGCBuscar = new JPanel();		
-		JPanel panelGCGestionar = new JPanel();
-		
-		
+				
 		// ********** Panel de busqueda **********
 		
 		JLabel lblMostrar = new JLabel("Mostrar : ");
@@ -161,153 +171,8 @@ public class GestionClientes extends JFrame
 		
 		
 		// ********** Obteción de las columnas de la tabla por default **********		
-    	String tableName = objectToShow;
-    	if (tableName.equals("cliente"))
-    		tableName = "clientes";
     	// Getting columns ot the table...
-		tableColumns = conexion.getTableColumns(tableName);		
-		
-		scrollPaneGCForm = new JScrollPane(panelGCForm);
-		panelGestionarCliente.add(scrollPaneGCForm, BorderLayout.CENTER);
-		panelGCGestionar.setLayout(new GridLayout(0, 1, 0, 0));
-		
-		JPanel panelGCGestionarNavegar = new JPanel();
-		panelGCGestionar.add(panelGCGestionarNavegar);
-		
-		JButton buttonFirst = new JButton("<<");
-		buttonFirst.addActionListener(new ActionListener() 
-		{
-			public void actionPerformed(ActionEvent e) 
-			{
-				JSONObject jsonRow;
-				try 
-				{
-					jsonRow = controlClientes.getFirst();
-					if (jsonRow == null)
-					{
-						JOptionPane.showMessageDialog(null, "Ocurrió un error al intentar\nobtener el elemento de la tabla..!", "CRM Clientes", JOptionPane.ERROR_MESSAGE);							
-						return;
-					}
-				} 
-				catch (Exception e1) 
-				{
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-					JOptionPane.showMessageDialog(null, "Ocurrió un error al intentar\nobtener el elemento de la tabla..!", "CRM Clientes", JOptionPane.ERROR_MESSAGE);							
-					return;
-				}
-				
-				// Si no no hubo error, actualizar el formulario.
-				updateForm(jsonRow);				
-			}
-		});
-		panelGCGestionarNavegar.add(buttonFirst);
-		
-		JButton buttonPrevious = new JButton("<");
-		buttonPrevious.addActionListener(new ActionListener() 
-		{
-			public void actionPerformed(ActionEvent e) 
-			{
-				int indice = controlClientes.getPosActual() - 1;				
-				JSONObject jsonRow;
-				try 
-				{
-					jsonRow = controlClientes.getElement(indice);
-					if (jsonRow == null)
-					{
-						JOptionPane.showMessageDialog(null, "Ocurrió un error al intentar\nobtener el elemento de la tabla..!", "CRM Clientes", JOptionPane.ERROR_MESSAGE);							
-						return;
-					}
-				} 
-				catch (Exception e1)
-				{
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-					JOptionPane.showMessageDialog(null, "Ocurrió un error al intentar\nobtener el elemento de la tabla..!", "CRM Clientes", JOptionPane.ERROR_MESSAGE);							
-					return;
-				}
-				
-				// Si no no hubo error, actualizar el formulario.
-				updateForm(jsonRow);
-			}
-		});
-		panelGCGestionarNavegar.add(buttonPrevious);
-		
-		JButton buttonNext = new JButton(">");
-		buttonNext.addActionListener(new ActionListener() 
-		{
-			public void actionPerformed(ActionEvent e)
-			{
-				int indice = controlClientes.getPosActual() + 1;
-				JSONObject jsonRow;
-				try 
-				{
-					jsonRow = controlClientes.getElement(indice);
-					if (jsonRow == null)
-					{
-						JOptionPane.showMessageDialog(null, "Ocurrió un error al intentar\nobtener el elemento de la tabla..!", "CRM Clientes", JOptionPane.ERROR_MESSAGE);							
-						return;
-					}
-				} 
-				catch (Exception e1)
-				{
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-					JOptionPane.showMessageDialog(null, "Ocurrió un error al intentar\nobtener el elemento de la tabla..!", "CRM Clientes", JOptionPane.ERROR_MESSAGE);							
-					return;
-				}
-				
-				// Si no no hubo error, actualizar el formulario.
-				updateForm(jsonRow);
-			}
-		});
-		panelGCGestionarNavegar.add(buttonNext);
-		
-		JButton buttonLast = new JButton(">>");
-		buttonLast.addActionListener(new ActionListener() 
-		{
-			public void actionPerformed(ActionEvent e) 
-			{
-				JSONObject jsonRow;
-				try 
-				{
-					jsonRow = controlClientes.getLast();
-					if (jsonRow == null)
-					{
-						JOptionPane.showMessageDialog(null, "Ocurrió un error al intentar\nobtener el elemento de la tabla..!", "CRM Clientes", JOptionPane.ERROR_MESSAGE);							
-						return;
-					}
-				} 
-				catch (Exception e1) 
-				{
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-					JOptionPane.showMessageDialog(null, "Ocurrió un error al intentar\nobtener el elemento de la tabla..!", "CRM Clientes", JOptionPane.ERROR_MESSAGE);							
-					return;
-				}
-				
-				// Si no no hubo error, actualizar el formulario.
-				updateForm(jsonRow);					
-			}
-		});
-		panelGCGestionarNavegar.add(buttonLast);
-		
-		JPanel panelGCGestionarGestionar = new JPanel();
-		panelGCGestionar.add(panelGCGestionarGestionar);
-		
-		
-		// ********** Panel de Gestión **********
-		
-		JButton btnNuevo = new JButton("Nuevo");
-		panelGCGestionarGestionar.add(btnNuevo);
-		JButton btnEditar = new JButton("Editar");
-		panelGCGestionarGestionar.add(btnEditar);
-		JButton btnGuardar = new JButton("Agregar");
-		panelGCGestionarGestionar.add(btnGuardar);
-		JButton btnEliminar = new JButton("Eliminar");
-		panelGCGestionarGestionar.add(btnEliminar);
-		
-		panelGestionarCliente.add(panelGCGestionar, BorderLayout.SOUTH);
+		tableColumns = conexion.getTableColumns(currentTable);
 		
 		JPanel panelTabla = new JPanel();
 		panelTabla.setPreferredSize(new Dimension(10, 300));
@@ -432,7 +297,7 @@ public class GestionClientes extends JFrame
 		// ********* TABLA DE DATOS ********* 
 		
 		controlClientes = ControladorClientes.getInstancia();
-		String query = "SELECT * FROM clientes;";
+		String query = "SELECT * FROM cliente;";
 		DefaultTableModel dataModel = controlClientes.getDataClientes(tableColumnsToShow, query);		
 		table = new JTable(dataModel);
 		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);		
@@ -445,29 +310,199 @@ public class GestionClientes extends JFrame
 		
 		
 		// ********** CONSTRUCCION DEL FORMULARIO POR DEFAULT **********	
+
+		panelFormObject = new JPanel();
+		panelGestionarCliente.add(panelFormObject, BorderLayout.CENTER);
+		panelFormObject.setLayout(new BorderLayout(0, 0));		
+		
+		
+		// ************** USER PHOTO **************
+		panelUserImage = new JPanel();
+		panelFormObject.add(panelUserImage, BorderLayout.NORTH);
+		panelUserImage.setLayout(new GridLayout(0, 2, 0, 0));		
+		JLabel labelPhoto = new JLabel("Foto: ");
+		labelPhoto.setHorizontalAlignment(SwingConstants.CENTER);
+		panelUserImage.add(labelPhoto);
+		labelPhotoImage = new JLabel();
+		labelPhotoImage.setLabelFor(labelPhoto);
+		labelPhotoImage.setPreferredSize(new Dimension(100, 100));
+		panelUserImage.add(labelPhotoImage);
+		
+		
+		// Getting first row of table 'Clientes'.
 		JSONObject firstObject = null;
-		try 
-		{
+		try {
 			firstObject = controlClientes.getFirst();
 		} 
-		catch (Exception e1)
-		{
+		catch (Exception e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
-		}    	
+		}
+				
+		
 		// Creating form for the first row of the table.
-    	createFormShow(tableName, firstObject);
+    	createFormShow(firstObject);		    	
+    	
 		scrollPaneGCForm = new JScrollPane(panelGCForm);
-		panelGestionarCliente.add(scrollPaneGCForm, BorderLayout.CENTER);
+		panelFormObject.add(scrollPaneGCForm);
+		//Create and populate the panel.
+		panelGCForm = new JPanel(new SpringLayout());
+		JPanel panelGCGestionar = new JPanel();
+		panelGCGestionar.setLayout(new GridLayout(0, 1, 0, 0));
+		
+		JPanel panelGCGestionarNavegar = new JPanel();
+		panelGCGestionar.add(panelGCGestionarNavegar);
+		
+		
+		// ************** NAVEGATION BUTTONS IN FORM ************** 
+		
+		// ************** Button 'GO FIRST' **************
+		JButton buttonFirst = new JButton("<<");
+		buttonFirst.addActionListener(new ActionListener() 
+		{
+			public void actionPerformed(ActionEvent e) 
+			{
+				JSONObject jsonRow;
+				try 
+				{
+					jsonRow = controlClientes.getFirst();
+					if (jsonRow == null)
+					{
+						JOptionPane.showMessageDialog(null, "Ocurrió un error al intentar\nobtener el elemento de la tabla..!", "CRM Clientes", JOptionPane.ERROR_MESSAGE);							
+						return;
+					}
+				} 
+				catch (Exception e1) 
+				{
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+					JOptionPane.showMessageDialog(null, "Ocurrió un error al intentar\nobtener el elemento de la tabla..!", "CRM Clientes", JOptionPane.ERROR_MESSAGE);							
+					return;
+				}
+				
+				// Si no no hubo error, actualizar el formulario.
+				updateForm(jsonRow);				
+			}
+		});
+		panelGCGestionarNavegar.add(buttonFirst);
+		
+		// ************** Button 'GO PREVIOUS' **************
+		JButton buttonPrevious = new JButton("<");
+		buttonPrevious.addActionListener(new ActionListener() 
+		{
+			public void actionPerformed(ActionEvent e) 
+			{
+				int indice = controlClientes.getPosActual() - 1;				
+				JSONObject jsonRow;
+				try 
+				{
+					jsonRow = controlClientes.getElement(indice);
+					if (jsonRow == null)
+					{
+						JOptionPane.showMessageDialog(null, "Ocurrió un error al intentar\nobtener el elemento de la tabla..!", "CRM Clientes", JOptionPane.ERROR_MESSAGE);							
+						return;
+					}
+				} 
+				catch (Exception e1)
+				{
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+					JOptionPane.showMessageDialog(null, "Ocurrió un error al intentar\nobtener el elemento de la tabla..!", "CRM Clientes", JOptionPane.ERROR_MESSAGE);							
+					return;
+				}
+				
+				// Si no no hubo error, actualizar el formulario.
+				updateForm(jsonRow);
+			}
+		});
+		panelGCGestionarNavegar.add(buttonPrevious);
+		
+		// ************** Button 'GO NEXT' **************
+		JButton buttonNext = new JButton(">");
+		buttonNext.addActionListener(new ActionListener() 
+		{
+			public void actionPerformed(ActionEvent e)
+			{
+				int indice = controlClientes.getPosActual() + 1;
+				JSONObject jsonRow;
+				try 
+				{
+					jsonRow = controlClientes.getElement(indice);
+					if (jsonRow == null)
+					{
+						JOptionPane.showMessageDialog(null, "Ocurrió un error al intentar\nobtener el elemento de la tabla..!", "CRM Clientes", JOptionPane.ERROR_MESSAGE);							
+						return;
+					}
+				} 
+				catch (Exception e1)
+				{
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+					JOptionPane.showMessageDialog(null, "Ocurrió un error al intentar\nobtener el elemento de la tabla..!", "CRM Clientes", JOptionPane.ERROR_MESSAGE);							
+					return;
+				}
+				
+				// Si no no hubo error, actualizar el formulario.
+				updateForm(jsonRow);
+			}
+		});
+		panelGCGestionarNavegar.add(buttonNext);
+		
+		// ************** Button 'GO LAST' **************
+		JButton buttonLast = new JButton(">>");
+		buttonLast.addActionListener(new ActionListener() 
+		{
+			public void actionPerformed(ActionEvent e) 
+			{
+				JSONObject jsonRow;
+				try 
+				{
+					jsonRow = controlClientes.getLast();
+					if (jsonRow == null)
+					{
+						JOptionPane.showMessageDialog(null, "Ocurrió un error al intentar\nobtener el elemento de la tabla..!", "CRM Clientes", JOptionPane.ERROR_MESSAGE);							
+						return;
+					}
+				} 
+				catch (Exception e1) 
+				{
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+					JOptionPane.showMessageDialog(null, "Ocurrió un error al intentar\nobtener el elemento de la tabla..!", "CRM Clientes", JOptionPane.ERROR_MESSAGE);							
+					return;
+				}
+				
+				// Si no no hubo error, actualizar el formulario.
+				updateForm(jsonRow);					
+			}
+		});
+		panelGCGestionarNavegar.add(buttonLast);
+		
+		
+		
+		
+		
+		
+		
+		JPanel panelGCGestionarGestionar = new JPanel();
+		panelGCGestionar.add(panelGCGestionarGestionar);
+		
+		
+		// ********** Panel de Gestión **********
+		
+		JButton btnNuevo = new JButton("Nuevo");
+		panelGCGestionarGestionar.add(btnNuevo);
+		JButton btnEditar = new JButton("Editar");
+		panelGCGestionarGestionar.add(btnEditar);
+		JButton btnGuardar = new JButton("Agregar");
+		panelGCGestionarGestionar.add(btnGuardar);
+		JButton btnEliminar = new JButton("Eliminar");
+		panelGCGestionarGestionar.add(btnEliminar);
+		
+		panelGestionarCliente.add(panelGCGestionar, BorderLayout.SOUTH);
+		
 		panelGestionarCliente.add(panelGCGestionar, BorderLayout.SOUTH);
 		panelGestionarCliente.updateUI();
-		
-		
-		
-		
-		JPanel panelOtrasGestiones = new JPanel();
-		panelTabla.add(panelOtrasGestiones, BorderLayout.SOUTH);
-		
 		
 		
 		
@@ -494,16 +529,10 @@ public class GestionClientes extends JFrame
 					textField_1.selectAll();
 					textField_1.requestFocusInWindow();
 					return;
-				}
-
-				// Get item selected from combo box.
-				objectToShow = comboBoxMostrar.getSelectedItem().toString().toLowerCase();
-		    	String tableName = objectToShow;
-		    	if (tableName.equals("cliente"))
-		    		tableName = "clientes";		    	
+				}    	
 
 				// Getting properties for this id.
-				String query = "SELECT * FROM " + tableName + " WHERE id" + objectToShow + " = " + id + ";" ;
+				String query = "SELECT * FROM " + currentTable + " WHERE id" + currentTable + " = " + id + ";" ;
 				JSONArray jsonRow = conexion.executeQuery(query);
 				if (jsonRow.length() == 0)
 				{
@@ -514,16 +543,14 @@ public class GestionClientes extends JFrame
 				}
 				
 				// Update form
-		    	ArrayList<String> formLabels = conexion.getTableColumns(tableName);
-				for (int i=0; i < formLabels.size(); i++)
-				{
+		    	ArrayList<String> formLabels = conexion.getTableColumns(currentTable);
+		    	formLabels.remove("foto");		    	
+				for (int i=0; i < formLabels.size(); i++) {					
 					String propertie = "null";
-					try 
-					{
+					try {
 						propertie = jsonRow.getJSONObject(0).getString(formLabels.get(i));
 					} 
-					catch (JSONException e1) 
-					{
+					catch (JSONException e1) {
 						// TODO Auto-generated catch block
 						e1.printStackTrace();
 						return;
@@ -543,50 +570,43 @@ public class GestionClientes extends JFrame
 		    public void actionPerformed(ActionEvent e) 
 		    {
 		    					
-		    	objectToShow = comboBoxMostrar.getSelectedItem().toString().toLowerCase();
-		    	panelGestionarCliente.removeAll();		    					
-		    	panelGestionarCliente.add(panelGCBuscar, BorderLayout.NORTH);
-		    	String tableName = objectToShow;
-		    	if (tableName.equals("cliente"))
-		    		tableName = "clientes";
+		    	currentTable = comboBoxMostrar.getSelectedItem().toString().toLowerCase();
+		    	
+		    	panelFormObject.removeAll();
 
 		    	// ************** CONSTRUCCION DE LA TABLA **************
 		    	// Getting columns ot the table...
-				tableColumns = conexion.getTableColumns(tableName);
+				tableColumns = conexion.getTableColumns(currentTable);
 				// Getting the model for the table
-				String query = "SELECT * FROM " + tableName + ";";				
+				String query = "SELECT * FROM " + currentTable + ";";				
 				DefaultTableModel dataModel = controlClientes.getDataClientes(tableColumns, query);				
 				table.setModel(dataModel);
 				table.updateUI();
 				
 				// Cuando se seleccione la tabla clientes, se actualiza los checkboxes de seleccion.
-				if (tableName.equals("clientes"))
-				{
+				if (currentTable.equals("cliente")) {
 					chckbxSelectAll.setSelected(true);
 					for (int i=0; i<listFieldsToShow.size(); i++)
 						listFieldsToShow.get("checkBox" + tableColumns.get(i)).setSelected(true);
 				}
 				
-		    	
+				
 				// Getting first row of the table.
 				JSONObject firstObject = null;
-				try 
-				{
+				try {
 					firstObject = controlClientes.getFirst();
 				}
-				catch (Exception e1) 
-				{
+				catch (Exception e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
 		    	
 				// Creating form for the first row of the table.
-		    	createFormShow(tableName, firstObject);
+				panelFormObject.add(panelUserImage, BorderLayout.NORTH);
+		    	createFormShow(firstObject);
 				scrollPaneGCForm = new JScrollPane(panelGCForm);
-				panelGestionarCliente.add(scrollPaneGCForm, BorderLayout.CENTER);
-				panelGestionarCliente.add(panelGCGestionar, BorderLayout.SOUTH);
-				panelGestionarCliente.updateUI();
-								
+				panelFormObject.add(scrollPaneGCForm);
+				panelFormObject.updateUI();
 		    }
 		});
 
@@ -599,8 +619,7 @@ public class GestionClientes extends JFrame
 			public void actionPerformed(ActionEvent e) 
 			{
 				// La búsqueda con filtros sólo funciona sobre la tabla clientes..!
-				if (!objectToShow.equals("cliente"))
-				{
+				if (!currentTable.equals("cliente")) {
 					JOptionPane.showMessageDialog(null, "La búsqueda con filtros sólo\nfunciona sobre la tabla clientes..!", "CRM Clientes", JOptionPane.ERROR_MESSAGE);					
 					comboBoxMostrar.requestFocusInWindow();
 					return;
@@ -609,14 +628,12 @@ public class GestionClientes extends JFrame
 				// Consult construction.
 				String query = "SELECT ";
 				// Columns for select...				
-				if (!chckbxSelectAll.isSelected())
-				{									
+				if (!chckbxSelectAll.isSelected()) {									
 					for (int i=0; i<listFieldsToShow.size(); i++)
 						if (listFieldsToShow.get("checkBox" + tableColumns.get(i)).isSelected())							
 							tableColumnsToShow.add(tableColumns.get(i));
 				}
-				else
-				{
+				else {
 					tableColumnsToShow.addAll(tableColumns);					
 				}
 				
@@ -624,7 +641,7 @@ public class GestionClientes extends JFrame
 				 * En la query se le dice que seleccione todo porque el metodo que crea el modelo
 				 * para la tabla filtra las columnas en base a la variable tableColumnsToShow.
 				 */
-				query += " * FROM clientes ";			
+				query += " * FROM cliente ";			
 				
 				
 				// ID Filter
@@ -645,16 +662,14 @@ public class GestionClientes extends JFrame
 					}
 					
 					// ID condition
-					if (!comboBoxRelOp.getSelectedItem().toString().equals("default"))
-					{
+					if (!comboBoxRelOp.getSelectedItem().toString().equals("default")) {
 						whereExist = true;
 						query += " WHERE idcliente " + comboBoxRelOp.getSelectedItem().toString() + " " + textFieldFiltrarID.getText();
 					}					
 				}
 					
 				// LIKE filter
-				if (!comboBoxLike.getSelectedItem().equals("default"))
-				{
+				if (!comboBoxLike.getSelectedItem().equals("default")) {
 					if (!whereExist)
 						query += " WHERE " + comboBoxLike.getSelectedItem().toString() + " ILIKE '%" + textFieldLike.getText() + "%'";
 					else
@@ -662,8 +677,7 @@ public class GestionClientes extends JFrame
 				}
 				
 				// Order By Filter
-				if (!comboBoxOrderBy.getSelectedItem().equals("default"))
-				{					
+				if (!comboBoxOrderBy.getSelectedItem().equals("default")) {					
 					query += " ORDER BY " + comboBoxOrderBy.getSelectedItem() + " " + comboBoxOrder.getSelectedItem();
 				}
 				
@@ -680,24 +694,19 @@ public class GestionClientes extends JFrame
 		
 		
 		// ***************** EVENTO DE SELECCION DE UNA FILA DE LA TABLA *****************
-		table.addMouseListener(new MouseAdapter()
-		{
+		table.addMouseListener(new MouseAdapter() {
 			@Override
-			public void mouseClicked(MouseEvent e) 
-			{
+			public void mouseClicked(MouseEvent e) {
 				int indice = table.getSelectedRow();
 				JSONObject jsonRow;
-				try
-				{
+				try {
 					jsonRow = controlClientes.getElement(indice);
-					if (jsonRow == null)
-					{
+					if (jsonRow == null) {
 						JOptionPane.showMessageDialog(null, "Ocurrió un error al intentar\nobtener el elemento de la tabla..!", "CRM Clientes", JOptionPane.ERROR_MESSAGE);							
 						return;
 					}
 				} 
-				catch (Exception e1) 
-				{
+				catch (Exception e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
 					JOptionPane.showMessageDialog(null, "Ocurrió un error al intentar\nobtener el elemento de la tabla..!", "CRM Clientes", JOptionPane.ERROR_MESSAGE);							
@@ -736,27 +745,56 @@ public class GestionClientes extends JFrame
 	 * @param tableName
 	 * @param object
 	 */
-	public void createFormShow(String tableName, JSONObject object)
-	{		
-		ArrayList<String> formLabels = conexion.getTableColumns(tableName);
-		int numPairs = formLabels.size();
+	public void createFormShow(JSONObject object) {
+		
+		panelUserImage.setVisible(false);
+		// Additional adjustments to the table 'clientes'.
+		if (currentTable.equals("cliente")){
+			
+			// *************** Getting user photo *************** 
+		    String userPhotoUrl = "null";
+		    try {
+		    	userPhotoUrl = object.getString("foto");
+			} 
+		    catch (JSONException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				JOptionPane.showMessageDialog(null, "Ocurrió un error al intentar\nobtener la foto del usuario..!", "CRM Clientes", JOptionPane.ERROR_MESSAGE);				
+				return;
+			}
+					    
+	        ImageIcon icon = getPhotoResized(userPhotoUrl);
+	        if (icon == null){
+	        	icon = getPhotoResized("default_user.png");
+	        }
+	        labelPhotoImage.setIcon(icon);
+	        
+	        // User Image only showed for 'clientes' table.
+	        panelUserImage.setVisible(true);
+		}
+		
+		// Getting labels to show in form. It is precisely the id columns of the table..
+		ArrayList<String> formLabels = conexion.getTableColumns(currentTable);
+		int numPairs = formLabels.size();		
+		
 		//Create and populate the panel.
 		panelGCForm = new JPanel(new SpringLayout());
 		listFormFields = new HashMap<String, JTextField>();
-		for (int i = 0; i < numPairs; i++) 
-		{
+		
+		for (int i = 0; i < numPairs; i++) {
+			// Don't show photo's field.
+			if (formLabels.get(i).equals("foto"))
+				continue;
+			
 		    JLabel label = new JLabel(formLabels.get(i) + " : ", JLabel.TRAILING);		    
-		    panelGCForm.add(label);
+		    panelGCForm.add(label);		    
 		    JTextField textField = new JTextField();
-		    if (object != null)
-		    {
+		    if (object != null) {
 			    String rowLabel = "null";
-			    try 
-			    {
+			    try {
 					rowLabel = object.getString(formLabels.get(i));
 				} 
-			    catch (JSONException e)
-			    {
+			    catch (JSONException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 					JOptionPane.showMessageDialog(null, "Ocurrió un error al intentar\nllenar el formulario..!", "CRM Clientes", JOptionPane.ERROR_MESSAGE);				
@@ -764,19 +802,22 @@ public class GestionClientes extends JFrame
 				}
 			    textField.setText(rowLabel);
 		    }
-
+		    
 		    textField.setEditable(false);
 		    label.setLabelFor(textField);
 		    panelGCForm.add(textField);
 		    listFormFields.put("textField" + formLabels.get(i), textField);
 		}
 		
+		// When the table is 'clientes', disregard the field 'foto'. 
+		numPairs = currentTable.equals("cliente")? (numPairs-1): numPairs;
+		
 		//Lay out the panel.
 		SpringUtilities.makeCompactGrid(panelGCForm,
 		                                numPairs, 2, //rows, cols
 		                                6, 6,        //initX, initY
-		                                6, 6);       //xPad, yPad		
-		
+		                                6, 6);       //xPad, yPad	
+				
 		if (object != null)
 			table.setRowSelectionInterval(controlClientes.getPosActual(), controlClientes.getPosActual());
 	} 
@@ -786,27 +827,39 @@ public class GestionClientes extends JFrame
 	 * Método que actualiza el formulario.
 	 * @param itemToShow
 	 */
-	private void updateForm(JSONObject jsonRow)
-	{
-    	objectToShow = comboBoxMostrar.getSelectedItem().toString().toLowerCase();
-    	String tableName = objectToShow;
-    	if (tableName.equals("cliente"))
-    		tableName = "clientes";
+	private void updateForm(JSONObject jsonRow) {
     	
     	// Getting columns ot the table...
-		tableColumns = conexion.getTableColumns(tableName);
+		tableColumns = conexion.getTableColumns(currentTable);
 
 		// Update form			
-		ArrayList<String> formLabels = conexion.getTableColumns(tableName);
-		for (int i=0; i < formLabels.size(); i++)
-		{
+		ArrayList<String> formLabels = conexion.getTableColumns(currentTable);
+		for (int i=0; i < formLabels.size(); i++) {
+			// Don't show photo's field.
+			if (formLabels.get(i).equals("foto")){
+				// *************** Getting user photo *************** 
+			    String userPhotoUrl = "null";
+			    try {
+			    	userPhotoUrl = jsonRow.getString("foto");
+				} 
+			    catch (JSONException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+					JOptionPane.showMessageDialog(null, "Ocurrió un error al intentar\nobtener la foto del usuario..!", "CRM Clientes", JOptionPane.ERROR_MESSAGE);				
+					return;
+				}
+		        ImageIcon icon = getPhotoResized(userPhotoUrl);
+		        if (icon == null){
+		        	icon = getPhotoResized("default_user.png");
+		        }
+		        labelPhotoImage.setIcon(icon);
+				continue;
+			}
 			String propertie = "null";
-			try 
-			{
+			try {
 				propertie = jsonRow.getString(formLabels.get(i));
 			} 
-			catch (Exception e1)
-			{
+			catch (Exception e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 				JOptionPane.showMessageDialog(null, "Ocurrió un error al intentar\nllenar el formulario..!", "CRM Clientes", JOptionPane.ERROR_MESSAGE);							
@@ -824,7 +877,7 @@ public class GestionClientes extends JFrame
 	 */
 	private String clienteNuevo(ArrayList<String> valoresColumnas)
 	{
-		String query = "Insert into clientes values("+valoresColumnas.get(0);
+		String query = "Insert into cliente values("+valoresColumnas.get(0);
 		for (int i=1; i<valoresColumnas.size();i++)
 		{
 			query+=","+valoresColumnas.get(i);
@@ -840,7 +893,7 @@ public class GestionClientes extends JFrame
 	 */
 	private String eliminarCliente(String idCliente)
 	{
-		String query = "Delete from clientes where id="+idCliente+";";
+		String query = "Delete from cliente where id="+idCliente+";";
 		return query;
 	}
 	
@@ -851,7 +904,7 @@ public class GestionClientes extends JFrame
 	 */
 	private String updateCliente(ArrayList<String> nombresColumnas, ArrayList<String> camposColumnas)
 	{
-		String query ="Update clientes set";
+		String query ="Update cliente set";
 		for(int i=0; i<=nombresColumnas.size();i++)
 		{
 			query+=nombresColumnas.get(i)+"="+camposColumnas.get(i);
@@ -867,7 +920,50 @@ public class GestionClientes extends JFrame
 	 */
 	private String agregarCampo(String nuevoCampo, String valorCampo)
 	{
-		String query = "Alter Table clientes Add Column"+nuevoCampo+" "+valorCampo+";";
+		String query = "Alter Table cliente Add Column"+nuevoCampo+" "+valorCampo+";";
 		return query;
 	}
+	
+	
+	/**
+	 * Resize an image.
+	 * @param originalImage Original Image.
+	 * @param type	
+	 * @param width	Widht required.
+	 * @param height Height required.
+	 * @return Image resized.
+	 */
+	
+    private static BufferedImage resizeImage(BufferedImage originalImage, int type, int width, int height){
+		BufferedImage resizedImage = new BufferedImage(width, height, type);
+		Graphics2D g = resizedImage.createGraphics();
+		g.drawImage(originalImage, 0, 0, width, height, null);
+		g.dispose();
+		return resizedImage;
+    }
+    
+    
+    
+    public ImageIcon getPhotoResized(String userPhotoUrl){
+    	BufferedImage originalImage = null;
+		try {
+			originalImage = ImageIO.read(new File("images/" + userPhotoUrl));
+		} catch (IOException e3) {
+			JOptionPane.showMessageDialog(null, "No se encontró la foto del cliente..!", "CRM Clientes", JOptionPane.ERROR_MESSAGE);
+			// TODO Auto-generated catch block
+			e3.printStackTrace();
+			return null;
+		}			
+		
+		int type = originalImage.getType() == 0? BufferedImage.TYPE_INT_ARGB : originalImage.getType();
+		BufferedImage resizedImage = new BufferedImage(100, 100, type);
+		Graphics2D g = resizedImage.createGraphics();
+		g.drawImage(originalImage, 0, 0, 100, 100, null);
+		g.dispose();
+		
+        ImageIcon icon = new ImageIcon(resizedImage);
+
+        return icon;
+    }
+	
 }
