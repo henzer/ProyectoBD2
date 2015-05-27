@@ -3,6 +3,8 @@ package modulo1.vistas;
 import java.awt.BorderLayout;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -49,7 +51,8 @@ public class Departamento extends JFrame
 					JSONObject departamento = control.getElement(i);
 					System.out.println(departamento);
 					int idDepartamento = departamento.getInt("iddepartamento");
-					cerrarVentana(idDepartamento);
+					parent.modificarCampo(String.valueOf(idDepartamento));
+					cerrarVentana();
 				} 
 				catch (JSONException e1)
 				{
@@ -57,11 +60,16 @@ public class Departamento extends JFrame
 				}
 			}
 		});
+		addWindowListener(new WindowAdapter(){
+			 public void windowClosing(WindowEvent we){
+				 cerrarVentana();
+			 }
+		});
 		contentPane.add(table, BorderLayout.CENTER);
 	}
 	
-	private void cerrarVentana(int idDepartamento) {
-		parent.modificarCampo(String.valueOf(idDepartamento));
+	private void cerrarVentana() {
+		
 		this.dispose();
 	}
 

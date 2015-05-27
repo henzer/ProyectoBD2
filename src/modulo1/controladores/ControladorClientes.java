@@ -102,7 +102,7 @@ public class ControladorClientes
 	//Inserta una nueva columna. Lanza una Excepción si se intenta crear una columna que ya existe.
 	//Cualquier otro error no lo maneja, simplemente lanzaría false. (Se debe manejar desde donde se llame).
 	public boolean insertNewRow(String titulo, String type) throws Exception{
-		List<String> columns = ConexionPostgres.getInstancia().getTableColumns("clientes");
+		List<String> columns = ConexionPostgres.getInstancia().getTableColumns("cliente");
 		String newName = "nueva" + columns.size();
 		int next = columns.size() + 1;
 		if(columns.contains(newName))

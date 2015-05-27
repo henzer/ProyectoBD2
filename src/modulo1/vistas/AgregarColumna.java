@@ -14,6 +14,8 @@ import modulo1.controladores.ControladorClientes;
 
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 public class AgregarColumna extends JFrame {
 
@@ -27,7 +29,6 @@ public class AgregarColumna extends JFrame {
 	public AgregarColumna(ControladorClientes control) {
 		this.control = control;
 		setTitle("Agregar Columna");
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 349, 159);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -60,6 +61,7 @@ public class AgregarColumna extends JFrame {
 					String titulo = txtTitulo.getText();
 					String tipo = cmbTipo.getSelectedItem().toString();
 					control.insertNewRow(titulo, tipo);
+					cerrarVentana();
 				} catch (Exception e) {
 					JOptionPane.showMessageDialog(null, e.getMessage());
 					e.printStackTrace();
@@ -68,6 +70,12 @@ public class AgregarColumna extends JFrame {
 					
 			}
 		});
+		addWindowListener(new WindowAdapter(){
+			 public void windowClosing(WindowEvent we){
+				 cerrarVentana();
+			 }
+		});
+		
 		btnAceptar.setMnemonic('c');
 		btnAceptar.setBounds(64, 93, 89, 23);
 		contentPane.add(btnAceptar);
@@ -75,7 +83,7 @@ public class AgregarColumna extends JFrame {
 		JButton btnCancelar = new JButton("Cancelar");
 		btnCancelar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				dispose();
+				cerrarVentana();
 			}
 		});
 		btnCancelar.setBounds(182, 93, 89, 23);
@@ -90,4 +98,7 @@ public class AgregarColumna extends JFrame {
 		return true;
 	}
 	
+	public void cerrarVentana(){
+		this.dispose();
+	}
 }

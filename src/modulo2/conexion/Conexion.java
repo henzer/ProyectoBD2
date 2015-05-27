@@ -6,6 +6,8 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.swing.JOptionPane;
+
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
@@ -65,14 +67,13 @@ public class Conexion{
 	       MongoClient mongo;  
 	       mongo = new MongoClient("127.0.0.1");
 	       db = mongo.getDB("tweetDB");  
-	     } catch (UnknownHostException ex) {  
+	     } catch (UnknownHostException ex) {
 	       System.out.println("MongoDB Connection Errro :" + ex.getMessage());  
 	     }  
 	}
 	
 	public void loadInformationOfTwitter(List<String> users){
 		if(cb!=null){
-			
 			DateFormat formato = new SimpleDateFormat("dd/MM/yyyy");
 			Twitter twitter = tf.getInstance();
 			Paging paging = new Paging(1, 100);
@@ -93,8 +94,9 @@ public class Conexion{
 						basicObj.put("tweet_text", tweet.getText());  
 						try {
 							items.insert(basicObj);  
-						} catch (Exception e) {  
-							System.out.println("MongoDB Connection Error : "  + e.getMessage());  
+						} catch (Exception e) {
+							JOptionPane.showMessageDialog(null, "ERROR.-No se pudo conectar con MONGO.");
+							//System.out.println("MongoDB Connection Error : "  + e.getMessage());  
 						}
 					}
 				}catch (TwitterException e) {
@@ -119,7 +121,8 @@ public class Conexion{
 				result.put(new JSONObject(element.toString()));
 			}
 		}catch(Exception ex){
-			ex.printStackTrace();
+			JOptionPane.showMessageDialog(null, "ERROR.-No puede conectarse con MONGO.");
+			//ex.printStackTrace();
 		}finally{
 			cursor.close();
 		}

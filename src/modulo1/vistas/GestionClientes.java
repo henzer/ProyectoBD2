@@ -18,6 +18,7 @@ import javax.swing.BoxLayout;
 
 import modulo1.conexion.ConexionPostgres;
 import modulo1.controladores.ControladorClientes;
+import modulo2.vistas.Ventana;
 
 import java.awt.FlowLayout;
 import java.awt.event.ActionListener;
@@ -63,6 +64,7 @@ import javax.swing.DefaultComboBoxModel;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.omg.CORBA.CTX_RESTRICT_SCOPE;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeEvent;
@@ -598,12 +600,42 @@ public class GestionClientes extends JFrame
 		actionButtons.add(btnNuevoCampo);	// Ver declaración de 'actionButons'.
 		btnNuevoCampo.setToolTipText("Agregar nuevo campo");
 		btnNuevoCampo.setPreferredSize(new Dimension(60,50));
+		btnNuevoCampo.addActionListener(new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				AgregarColumna a = new AgregarColumna(controlClientes);
+				a.setVisible(true);
+			}
+		});
 		panelGCGestionarGestionar.add(btnNuevoCampo);
 		
 		JButton btnVerTweets = new JButton(new ImageIcon("system_images/user_tweets.png"));
 		actionButtons.add(btnVerTweets);	// Ver declaración de 'actionButons'.
 		btnVerTweets.setToolTipText("Ver tweets de cliente");
 		btnVerTweets.setPreferredSize(new Dimension(60,50));
+		btnVerTweets.addActionListener(new ActionListener(){
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				if(controlClientes.getPosActual()!=-1 && currentTable.equals("cliente")){
+					String cliente="";
+					try {
+						cliente = ((JSONObject)controlClientes.getElement(controlClientes.getPosActual())).get("nombres").toString();
+					} catch (JSONException e) {
+						e.printStackTrace();
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+					Ventana v = new Ventana(cliente);
+					v.setVisible(true);
+				}else{
+					
+				}
+				
+				
+			}
+			
+		});
 		panelGCGestionarGestionar.add(btnVerTweets);		
 				
 		panelGestionarCliente.add(panelGCGestionar, BorderLayout.SOUTH);

@@ -5,6 +5,8 @@ import java.awt.EventQueue;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -15,6 +17,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import modulo1.controladores.ControladorTelefono;
+
 import javax.swing.ListSelectionModel;
 
 public class Telefono extends JFrame 
@@ -50,7 +53,8 @@ public class Telefono extends JFrame
 					System.out.println(telefono);
 					int idTelefono = telefono.getInt("idtelefono");
 					System.out.println("ID seleccionado: " + idTelefono);
-					cerrarVentana(idTelefono);
+					parent.modificarCampo(String.valueOf(idTelefono));
+					cerrarVentana();
 				} 
 				catch (JSONException e1) 
 				{
@@ -59,11 +63,16 @@ public class Telefono extends JFrame
 			}
 			
 		});
+		addWindowListener(new WindowAdapter(){
+			 public void windowClosing(WindowEvent we){
+				 cerrarVentana();
+			 }
+		});
 		contentPane.add(table, BorderLayout.CENTER);
 	}
 	
-	private void cerrarVentana(int idTelefono) {
-		parent.modificarCampo(String.valueOf(idTelefono));
+	private void cerrarVentana() {
+		
 		this.dispose();
 	}
 	

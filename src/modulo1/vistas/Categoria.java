@@ -3,6 +3,8 @@ package modulo1.vistas;
 import java.awt.BorderLayout;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -48,7 +50,8 @@ public class Categoria extends JFrame
 					JSONObject categoria = control.getElement(i);
 					System.out.println(categoria);
 					int idCategorias = categoria.getInt("idcategoria");
-					cerrarVentana(idCategorias);
+					parent.modificarCampo(String.valueOf(idCategorias));
+					cerrarVentana();
 				} 
 				catch (JSONException e1)
 				{
@@ -56,11 +59,15 @@ public class Categoria extends JFrame
 				}
 			}
 		});
+		addWindowListener(new WindowAdapter(){
+			 public void windowClosing(WindowEvent we){
+				 cerrarVentana();
+			 }
+		});
 		contentPane.add(table, BorderLayout.CENTER);
 	}
 	
-	private void cerrarVentana(int idCategoria){
-		parent.modificarCampo(String.valueOf(idCategoria));
+	private void cerrarVentana(){
 		this.dispose();
 	}
 

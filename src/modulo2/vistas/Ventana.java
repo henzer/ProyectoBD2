@@ -13,6 +13,8 @@ import modulo2.controladores.Controlador;
 
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 import javax.swing.JScrollPane;
 import javax.swing.JList;
@@ -62,14 +64,15 @@ public class Ventana extends JFrame {
 	private JComboBox cmbFecha;
 	private JLabel lblResultados;
 	private JLabel lblCantidad;
+	private String cliente;
 	
 	
 	
-	public Ventana() {
+	public Ventana(String nombre) {
+		this.cliente = nombre;
 		controlador = Controlador.getInstancia();
 		setTitle("Analizar informaci\u00F3n de: ");
 		setPreferredSize(new Dimension(800, 400));
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 926, 587);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -267,8 +270,19 @@ public class Ventana extends JFrame {
 		tabla.setFillsViewportHeight(true);
 		loadData();
 		scrollPane.setViewportView(tabla);
+		
+		addWindowListener(new WindowAdapter(){
+			 public void windowClosing(WindowEvent we){
+				 cerrarVentana();
+			 }
+		});
+		
 		blockTextFields();
 		
+	}
+	
+	public void cerrarVentana(){
+		this.dispose();
 	}
 	
 	public void loadData(){
@@ -393,7 +407,7 @@ public class Ventana extends JFrame {
 				throw new Exception("ERROR.-El formato de la fecha es incorrecto. Debe ser dd/MM/yyyy.");
 			}
 		}
-		
+		query.put("user_name", cliente);
 		return query;
 	}
 	
