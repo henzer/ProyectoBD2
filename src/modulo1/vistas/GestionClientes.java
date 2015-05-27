@@ -40,6 +40,7 @@ import java.awt.GridLayout;
 import javax.swing.border.BevelBorder;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.ImageIcon;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
 import javax.swing.JSplitPane;
@@ -48,6 +49,7 @@ import javax.swing.AbstractListModel;
 import javax.swing.SpringLayout;
 
 import java.awt.Component;
+import java.nio.channels.FileChannel;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -69,6 +71,9 @@ import org.omg.CORBA.CTX_RESTRICT_SCOPE;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeEvent;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.awt.event.ItemListener;
 import java.awt.event.ItemEvent;
@@ -102,6 +107,9 @@ public class GestionClientes extends JFrame
 	private JPanel panelFormObject;
 	private JLabel labelPhotoImage;
 	private String currentTable = "cliente";
+	private File copia;
+	private File path;
+	private ImageIcon photo;
 	
 	
 	private JTextField currentEditing;
@@ -314,14 +322,35 @@ public class GestionClientes extends JFrame
 		
 		// ************** USER PHOTO **************
 		panelUserImage = new JPanel();
+		labelPhotoImage = new JLabel();
 		panelFormObject.add(panelUserImage, BorderLayout.NORTH);
 		panelUserImage.setLayout(new GridLayout(0, 2, 0, 0));		
-		JLabel labelPhoto = new JLabel("Foto: ");
-		labelPhoto.setHorizontalAlignment(SwingConstants.CENTER);
-		panelUserImage.add(labelPhoto);
-		labelPhotoImage = new JLabel();
-		labelPhotoImage.setLabelFor(labelPhoto);
-		labelPhotoImage.setPreferredSize(new Dimension(100, 100));
+		JButton btnNewButton = new JButton("Seleccionar Foto");
+		
+		btnNewButton.addActionListener(new ActionListener() 
+		{
+			public void actionPerformed(ActionEvent arg0) 
+			{
+				path = AbrirFoto();
+				try 
+				{
+					copyFile(new File(path.getPath()), new File("C:/Users/fred__000/Desktop/Copy 1 of ProyectoBD2/user_photos/"+path.getName()));
+				} 
+				catch (IOException e) 
+				{
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
+				photo=new ImageIcon();
+				photo=getPhotoResized(path.getName());
+				labelPhotoImage.setPreferredSize(new Dimension(100, 100));
+				labelPhotoImage.setIcon(photo);
+			}
+		});
+		panelUserImage.add(btnNewButton);
+		
+		
 		panelUserImage.add(labelPhotoImage);
 		
 		
@@ -1198,7 +1227,7 @@ public class GestionClientes extends JFrame
 			fields.add("foto");		// Se regresa el campo foto.
 			
 			// ************************* Obtener la url de la imagen *************************
-			String urlPhoto = "default_user.png";
+			String urlPhoto = path.getName();
 			values.add(urlPhoto);
 			
 			
@@ -1381,7 +1410,113 @@ public class GestionClientes extends JFrame
     	currentEditing.setText(value);
     }
 	
-	
+    public File AbrirFoto()
+    {
+    	try
+    	{
+    		/**llamamos el metodo que permite cargar la ventana*/
+    		JFileChooser file=new JFileChooser();
+    		file.showOpenDialog(this);
+    		/**abrimos el archivo seleccionado*/
+    		File abre=file.getSelectedFile();
+    		
+    		return abre;
+    	}
+    	catch(Exception e)
+    	{
+    		JOptionPane.showMessageDialog(null,"No se ha encontrado el archivo","ADVERTENCIA!!!",JOptionPane.WARNING_MESSAGE);
+    		return null;
+    	}
+    }
+    
+    public void copiar(File original, File copia) 
+    { 
+	    FileInputStream archivoOriginal = null; 
+	    FileOutputStream archivoCopia = null; 
+	    if((original != null)&&(copia != null)) 
+	    { 
+	    	try 
+	    	{ 
+			    copia.createNewFile(); 
+			    archivoOriginal = new FileInputStream(original); 
+			    archivoCopia = new FileOutputStream(copia); 
+			    //lectura por segmentos de 0.5MB 
+			    byte buffer[] = new byte[512*1024]; 
+			    int nbLectura; 
+			    while((nbLectura=archivoOriginal.read(buffer)) != -1) 
+			    { 
+			    	archivoCopia.write(buffer,0,nbLectura); 
+			    } 
+	    	}
+	    	catch(FileNotFoundException fnf)
+	    	{ 
+	    		
+	    	}
+		    catch(IOException io)
+	    	{ 
+		    }
+	    	finally
+	    	{ 
+			    try 
+			    { 
+			    archivoOriginal.close(); 
+			    }catch(Exception e){ 
+			    } 
+			    try 
+			    { 
+			    archivoCopia.close(); 
+			    }catch(Exception e){ 
+			    } 
+		    } 
+	    }
+    }
+    
+ 
+    
+    public static void copyFile(File sourceFile, File destFile) throws IOException { 
+
+    	   if(!destFile.exists()) { 
+
+    	    destFile.createNewFile(); 
+
+    	   } 
+
+    	    
+
+    	   FileChannel source = null; 
+
+    	   FileChannel destination = null; 
+
+    	   try { 
+
+    	    source = new FileInputStream(sourceFile).getChannel(); 
+
+    	    destination = new FileOutputStream(destFile).getChannel(); 
+
+    	    destination.transferFrom(source, 0, source.size()); 
+
+    	   } 
+
+    	   finally { 
+
+    	    if(source != null) { 
+
+    	     source.close(); 
+
+    	    } 
+
+    	    if(destination != null) { 
+
+    	     destination.close(); 
+
+    	    } 
+
+    	  } 
+
+    	 }
+    
+    
+    
 }
 
 
