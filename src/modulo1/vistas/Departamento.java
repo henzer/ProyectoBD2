@@ -56,8 +56,7 @@ public class Departamento extends JFrame
 		contentPane.add(table, BorderLayout.CENTER);
 	}
 	
-	private void cerrarVentana(int idDepartamento)
-	{
+	private void cerrarVentana(int idDepartamento){
 		//Aquí se asigna este valor a alguna funcion de la clase Gestión Clientes.
 		this.dispose();
 	}

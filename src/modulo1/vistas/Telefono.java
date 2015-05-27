@@ -17,14 +17,15 @@ import org.json.JSONObject;
 import modulo1.controladores.ControladorTelefono;
 import javax.swing.ListSelectionModel;
 
-public class Telefono extends JFrame {
-
+public class Telefono extends JFrame 
+{
 	private JPanel contentPane;
 	private JTable table;
 	private ControladorTelefono control;
 	private GestionClientes parent;
 	
-	public Telefono(GestionClientes parent) {
+	public Telefono(GestionClientes parent) 
+	{
 		this.parent = parent;
 		control = new ControladorTelefono();
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -37,17 +38,21 @@ public class Telefono extends JFrame {
 		table = new JTable();
 		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		table.setModel(control.getData());
-		table.addMouseListener(new MouseAdapter(){
-
+		table.addMouseListener(new MouseAdapter()
+		{
 			@Override
-			public void mouseClicked(MouseEvent e) {
+			public void mouseClicked(MouseEvent e)
+			{
 				int i = table.getSelectedRow();
-				try {
+				try
+				{
 					JSONObject telefono = control.getElement(i);
 					System.out.println(telefono);
 					int idTelefono = telefono.getInt("idtelefono");
 					cerrarVentana(idTelefono);
-				} catch (JSONException e1) {
+				} 
+				catch (JSONException e1) 
+				{
 					e1.printStackTrace();
 				}
 			}
@@ -56,7 +61,8 @@ public class Telefono extends JFrame {
 		contentPane.add(table, BorderLayout.CENTER);
 	}
 	
-	private void cerrarVentana(int idTelefono){
+	private void cerrarVentana(int idTelefono)
+	{
 		//Aquí se asigna este valor a alguna funcion de la clase Gestión Clientes.
 		
 		this.dispose();

@@ -37,25 +37,32 @@ public class ControladorClientes
 		for(String header: columnas){
 			model.addColumn(header);
 		}
-		try {
-			for(int i=0; i<dataActual.length(); i++){
+		try 
+		{
+			for(int i=0; i<dataActual.length(); i++)
+			{
 				JSONObject elemento = (JSONObject)dataActual.get(i);
 				System.out.println(elemento);
 				Object [] row = new Object[columnas.size()];
-				for(int j=0; j<columnas.size(); j++){
+				for(int j=0; j<columnas.size(); j++)
+				{
 					row[j] = elemento.get(columnas.get(j));
 				}
 				model.addRow(row);
 			}
-		} catch (JSONException e) {
+		} 
+		catch (JSONException e)
+		{
 			e.printStackTrace();
 		}
 		return model;
 	}
 	
 	//Devuelve el primer elemento de la lista actual. Si esta vacia retorna NULL
-	public JSONObject getFirst() throws Exception{
-		if(dataActual.length()>0){
+	public JSONObject getFirst() throws Exception
+	{
+		if(dataActual.length()>0)
+		{
 			posActual = 0;
 			return (JSONObject) dataActual.get(0);
 		}
@@ -63,7 +70,8 @@ public class ControladorClientes
 	}
 	
 	//Devuelve el ultimo elemento de la lista actual. Si esta vacia retorna NULL
-	public JSONObject getLast() throws Exception{
+	public JSONObject getLast() throws Exception
+	{
 		if(dataActual.length()>0){
 			posActual = dataActual.length()-1;
 			return (JSONObject) dataActual.get(dataActual.length()-1);

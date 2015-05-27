@@ -55,8 +55,7 @@ public class Categorias extends JFrame
 		contentPane.add(table, BorderLayout.CENTER);
 	}
 	
-	private void cerrarVentana(int idCategorias)
-	{
+	private void cerrarVentana(int idCategorias){
 		//Aquí se asigna este valor a alguna funcion de la clase Gestión Clientes.
 		this.dispose();
 	}

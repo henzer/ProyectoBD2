@@ -58,8 +58,7 @@ public class Estado extends JFrame
 		contentPane.add(table, BorderLayout.CENTER);
 	}
 	
-	private void cerrarVentana(int idEstado)
-	{
+	private void cerrarVentana(int idEstado){
 		//Aquí se asigna este valor a alguna funcion de la clase Gestión Clientes.
 		this.dispose();
 	}

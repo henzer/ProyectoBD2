@@ -49,7 +49,8 @@ public class ControladorCategorias
 		return model;
 	}
 	
-	public JSONObject getElement(int i) throws JSONException{
+	public JSONObject getElement(int i) throws JSONException
+	{
 		return data.getJSONObject(i);
 	}
 

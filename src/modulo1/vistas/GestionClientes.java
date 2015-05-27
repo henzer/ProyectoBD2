@@ -924,6 +924,7 @@ public class GestionClientes extends JFrame
 			query+=","+valoresColumnas.get(i);
 		}
 		query+=");";
+		System.out.println(query);
 		return query;
 	}
 	
@@ -935,6 +936,7 @@ public class GestionClientes extends JFrame
 	private String eliminarCliente(String idCliente)
 	{
 		String query = "Delete from cliente where id="+idCliente+";";
+		System.out.println(query);
 		return query;
 	}
 	
@@ -951,6 +953,7 @@ public class GestionClientes extends JFrame
 			query+=nombresColumnas.get(i)+"="+camposColumnas.get(i);
 		}
 		query+=";";
+		System.out.println(query);
 		return query;
 	}
 	
@@ -962,6 +965,7 @@ public class GestionClientes extends JFrame
 	private String agregarCampo(String nuevoCampo, String valorCampo)
 	{
 		String query = "Alter Table cliente Add Column"+nuevoCampo+" "+valorCampo+";";
+		System.out.println(query);
 		return query;
 	}
 	
