@@ -99,6 +99,7 @@ public class GestionClientes extends JFrame
 	private JLabel labelPhotoImage;
 	private String currentTable = "cliente";
 
+	
 	/**
 	 * Create the frame.
 	 */

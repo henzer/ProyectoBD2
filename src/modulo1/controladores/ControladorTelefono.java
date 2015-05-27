@@ -10,30 +10,39 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class ControladorTelefono {
+public class ControladorTelefono 
+{
 	private JSONArray data;
 	
-	public ControladorTelefono(){
+	public ControladorTelefono()
+	{
 		data = new JSONArray();
 	}
 	
-	public DefaultTableModel getData(){
+	public DefaultTableModel getData()
+	{
 		DefaultTableModel model = new DefaultTableModel();
 		data = ConexionPostgres.getInstancia().executeQuery("SELECT * FROM telefono;");
 		List<String> columnas = ConexionPostgres.getInstancia().getTableColumns("telefono");
-		for(String header: columnas){
+		for(String header: columnas)
+		{
 			model.addColumn(header);
 		}
-		try {
-			for(int i=0; i<data.length(); i++){
+		try 
+		{
+			for(int i=0; i<data.length(); i++)
+			{
 				JSONObject elemento = (JSONObject)data.get(i);
 				Object [] row = new Object[columnas.size()];
-				for(int j=0; j<columnas.size(); j++){
+				for(int j=0; j<columnas.size(); j++)
+				{
 					row[j] = elemento.get(columnas.get(j));
 				}
 				model.addRow(row);
 			}
-		} catch (JSONException e) {
+		} 
+		catch (JSONException e) 
+		{
 			e.printStackTrace();
 		}
 		return model;

@@ -19,6 +19,7 @@ public class ControladorEstado
 		data = new JSONArray();
 	}
 	
+	
 	public DefaultTableModel getData()
 	{
 		DefaultTableModel model = new DefaultTableModel();
