@@ -11,23 +11,27 @@ import org.json.JSONObject;
 import modulo1.conexion.ConexionPostgres;
 import modulo2.conexion.Conexion;
 
-public class ControladorClientes {
+public class ControladorClientes
+{
 	private JSONArray dataActual;
 	private int posActual;
 	
 	private static ControladorClientes instancia;
-	public static ControladorClientes getInstancia(){
+	public static ControladorClientes getInstancia()
+	{
 		if(instancia==null)
 			instancia = new ControladorClientes();
 		return instancia;
 	}
 	
-	public ControladorClientes(){
+	public ControladorClientes()
+	{
 		dataActual = new JSONArray();
 	}
 	
 	//
-	public DefaultTableModel getDataClientes(List<String> columnas, String query){
+	public DefaultTableModel getDataClientes(List<String> columnas, String query)
+	{
 		DefaultTableModel model = new DefaultTableModel();
 		dataActual = ConexionPostgres.getInstancia().executeQuery(query);
 		for(String header: columnas){
@@ -82,11 +86,12 @@ public class ControladorClientes {
 	
 	//Inserta una nueva columna. Lanza una Excepción si se intenta crear una columna que ya existe.
 	//Cualquier otro error no lo maneja, simplemente lanzaría false. (Se debe manejar desde donde se llame).
-	public boolean insertNewRow(String name, String type, String _default) throws Exception{
+	public boolean insertNewRow(String titulo, String type, String _default) throws Exception{
 		List<String> columns = ConexionPostgres.getInstancia().getTableColumns("clientes");
-		if(columns.contains(name))
+		String newName = "nueva" + columns.size();
+		if(columns.contains(newName))
 			throw new Exception("ERROR.-Ya existe una columna con ese nombre");
-		return ConexionPostgres.getInstancia().executeUpdate("ALTER TABLE clientes ADD COLUMN "+name+" "+ type +" DEFAULT "+_default+";");		
+		return ConexionPostgres.getInstancia().executeUpdate("ALTER TABLE clientes ADD COLUMN "+newName+" "+ type +" DEFAULT "+_default+";");		
 	}
 
 	public int getPosActual() {
@@ -96,4 +101,11 @@ public class ControladorClientes {
 	public void setPosActual(int posActual) {
 		this.posActual = posActual;
 	}
+	
+	
+	public JSONArray getMetadata(){
+		JSONArray result = ConexionPostgres.getInstancia().executeQuery("SELECT * FROM metadata_clientes;");
+		return result;
+	}
 }
+

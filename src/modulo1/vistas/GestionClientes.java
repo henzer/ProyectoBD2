@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 package modulo1.vistas;
 
 import java.awt.BorderLayout;

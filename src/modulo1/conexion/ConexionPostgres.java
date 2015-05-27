@@ -13,9 +13,11 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class ConexionPostgres {
+public class ConexionPostgres 
+{
 	private static ConexionPostgres instancia;
-	public static ConexionPostgres getInstancia(){
+	public static ConexionPostgres getInstancia()
+	{
 		if(instancia==null)
 			instancia = new ConexionPostgres();
 		return instancia;
@@ -23,36 +25,43 @@ public class ConexionPostgres {
 	
 	Connection connection;
 	
-	public ConexionPostgres(){
+	public ConexionPostgres()
+	{
 		conectar();
 	}	
 		
 	// public boolean conectar() throws ClassNotFoundException, SQLException{
-	public boolean conectar(){
+	public boolean conectar()
+	{
 		System.out.println("--- PostgreSQL " + " JDBC Connection Testing ---");
-		try{
+		try
+		{
 			Class.forName("org.postgresql.Driver");
 		}
-		catch (ClassNotFoundException e){
-			System.out.println("Where is your PostgreSQL JDBC Driver? " + "Include in your library path!");
+		catch (ClassNotFoundException e)
+		{
+			System.out.println("Where is your PostgreSQL JDBC Driver? " + "Include it in your library path!");
 			e.printStackTrace();
 			return false;
 		}		
 		
 		System.out.println("PostgreSQL JDBC Driver Registered!");
 		connection = null;
-		try{
-			//
-			connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/ProyectoCRM", "postgres", "cesarlui93");
+		try
+		{
+			//connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/ProyectoCRM", "postgres", "cesarlui93");
 			//connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/ProyectoCRM", "postgres", "henzer");
+			connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/CRM-Clientes", "postgres", "ESPE125rare");
 		}
-		catch (SQLException e){
+		catch (SQLException e)
+		{
 			System.out.println("Connection Failed! Check output console..!");
 			e.printStackTrace();
 			return false;
 		}
 		
-		if (connection != null) {
+		if (connection != null) 
+		{
 			System.out.println("You made it, take control your database now!");	
 			return true;
 		}
@@ -67,7 +76,8 @@ public class ConexionPostgres {
 	 * @param query Query to execute.
 	 * @return True if database was updated successfully. False, otherwise.
 	 */
-	public boolean executeUpdate(String query){
+	public boolean executeUpdate(String query)
+	{
 		Statement st;
 		ResultSet rs;
 		try {
@@ -81,7 +91,6 @@ public class ConexionPostgres {
 			// e.printStackTrace();
 			return false;
 		}
-	
 		return true;
 	}
 	
