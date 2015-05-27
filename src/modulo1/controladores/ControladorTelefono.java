@@ -19,6 +19,7 @@ public class ControladorTelefono
 		data = new JSONArray();
 	}
 	
+	
 	public DefaultTableModel getData()
 	{
 		DefaultTableModel model = new DefaultTableModel();

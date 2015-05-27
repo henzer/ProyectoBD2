@@ -20,7 +20,6 @@ public class ControladorCategorias
 		data = new JSONArray();
 	}
 	
-	
 	public DefaultTableModel getData()
 	{
 		DefaultTableModel model = new DefaultTableModel();

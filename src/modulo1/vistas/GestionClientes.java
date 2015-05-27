@@ -989,7 +989,6 @@ public class GestionClientes extends JFrame
     }
     
     
-    
     public ImageIcon getPhotoResized(String userPhotoUrl){
     	BufferedImage originalImage = null;
 		try {

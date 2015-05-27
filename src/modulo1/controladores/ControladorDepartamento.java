@@ -20,7 +20,6 @@ public class ControladorDepartamento
 		data = new JSONArray();
 	}
 	
-	
 	public DefaultTableModel getData()
 	{
 		DefaultTableModel model = new DefaultTableModel();
