@@ -49,6 +49,7 @@ import java.awt.Component;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -79,7 +80,6 @@ import javax.swing.ListSelectionModel;
 
 public class GestionClientes extends JFrame
 {
-	
 	ConexionPostgres conexion = null;
 	private JPanel contentPane;
 	private JTable table;
@@ -130,12 +130,9 @@ public class GestionClientes extends JFrame
 		     }
 		});
 		
-		
-		
 		JPanel panelGestion = new JPanel();
 		contentPane.add(panelGestion, BorderLayout.WEST);
 		panelGestion.setLayout(new BorderLayout(0, 0));
-		
 		
 		panelGestionarCliente = new JPanel();
 		panelGestionarCliente.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
@@ -168,12 +165,9 @@ public class GestionClientes extends JFrame
 		panelGCBuscar.add(btnBuscar);		
 		panelGestionarCliente.add(panelGCBuscar, BorderLayout.NORTH);
 		
-		
-		
 		// ********** Obteción de las columnas de la tabla por default **********		
     	// Getting columns ot the table...
 		tableColumns = conexion.getTableColumns(currentTable);
-		
 		JPanel panelTabla = new JPanel();
 		panelTabla.setPreferredSize(new Dimension(10, 300));
 		contentPane.add(panelTabla, BorderLayout.CENTER);
@@ -181,7 +175,6 @@ public class GestionClientes extends JFrame
 		
 		
 		// ********************** VISTA FILTROS ********************** 	
-		
 		JPanel panelFiltros = new JPanel();
 		panelTabla.add(panelFiltros, BorderLayout.NORTH);
 		panelFiltros.setLayout(new BorderLayout(0, 0));
@@ -293,9 +286,7 @@ public class GestionClientes extends JFrame
 		}
 					
 		
-		
 		// ********* TABLA DE DATOS ********* 
-		
 		controlClientes = ControladorClientes.getInstancia();
 		String query = "SELECT * FROM cliente;";
 		DefaultTableModel dataModel = controlClientes.getDataClientes(tableColumnsToShow, query);		
@@ -307,14 +298,10 @@ public class GestionClientes extends JFrame
 		table.setFillsViewportHeight(true);
 		panelTabla.add(scrollPane, BorderLayout.CENTER);
 		
-		
-		
-		// ********** CONSTRUCCION DEL FORMULARIO POR DEFAULT **********	
-
+		// ********** CONSTRUCCION DEL FORMULARIO POR DEFAULT **********
 		panelFormObject = new JPanel();
 		panelGestionarCliente.add(panelFormObject, BorderLayout.CENTER);
 		panelFormObject.setLayout(new BorderLayout(0, 0));		
-		
 		
 		// ************** USER PHOTO **************
 		panelUserImage = new JPanel();
@@ -329,12 +316,14 @@ public class GestionClientes extends JFrame
 		panelUserImage.add(labelPhotoImage);
 		
 		
-		// Getting first row of table 'Clientes'.
+		// Getting first row of table 'Cliente'.
 		JSONObject firstObject = null;
-		try {
+		try
+		{
 			firstObject = controlClientes.getFirst();
 		} 
-		catch (Exception e1) {
+		catch (Exception e1) 
+		{
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
@@ -355,7 +344,6 @@ public class GestionClientes extends JFrame
 		
 		
 		// ************** NAVEGATION BUTTONS IN FORM ************** 
-		
 		// ************** Button 'GO FIRST' **************
 		JButton buttonFirst = new JButton("<<");
 		buttonFirst.addActionListener(new ActionListener() 
@@ -477,22 +465,76 @@ public class GestionClientes extends JFrame
 			}
 		});
 		panelGCGestionarNavegar.add(buttonLast);
-		
-		
-		
-		
-		
-		
-		
+	
 		JPanel panelGCGestionarGestionar = new JPanel();
 		panelGCGestionar.add(panelGCGestionarGestionar);
 		
 		
 		// ********** Panel de Gestión **********
-		
+		//Boton que permite editar los campos.
 		JButton btnNuevo = new JButton("Nuevo");
+		btnNuevo.addActionListener(new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent e) 
+			{
+				Collection<JTextField> valores = listFormFields.values();
+				Iterator<JTextField> textfields = valores.iterator();
+				JTextField modificable = new JTextField();
+				while(textfields.hasNext())
+				{
+					modificable=textfields.next();
+					modificable.setEditable(true);
+					modificable.setText(" ");
+				}
+				
+			}
+		});
 		panelGCGestionarGestionar.add(btnNuevo);
+		
+		//Boton para editar los campos.
 		JButton btnEditar = new JButton("Editar");
+		btnEditar.addActionListener(new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent e) 
+			{
+				//Arreglos
+				ArrayList<String> valoresCampos=new ArrayList<String>();
+				ArrayList<String> camposTabla = new ArrayList<String>();
+				//Collections
+				Collection<String> nombres =listFormFields.keySet();
+				Collection<JTextField> valores = listFormFields.values();
+				//Iterators
+				Iterator<String> campos = nombres.iterator();
+				Iterator<JTextField> textfields = valores.iterator();
+				//Modificables
+				JTextField modificable = new JTextField();
+				String campo;
+				while(campos.hasNext())
+				{
+					campo=campos.next();
+					camposTabla.add(campo);
+				}
+				while(textfields.hasNext())
+				{
+					modificable=textfields.next();
+					modificable.setEditable(true);
+					valoresCampos.add(modificable.getText());
+				}
+				String query=updateCliente(camposTabla, valoresCampos);
+				boolean retorno=conexion.executeUpdate(query);
+				if(retorno)
+				{
+					JOptionPane.showMessageDialog(null, "Cliente insertado exitosamente...");
+				}
+				else
+				{
+					JOptionPane.showMessageDialog(null, "No se pudo insertar el cliente");
+				}
+				
+			}
+		});
 		panelGCGestionarGestionar.add(btnEditar);
 		JButton btnGuardar = new JButton("Agregar");
 		panelGCGestionarGestionar.add(btnGuardar);
@@ -545,12 +587,15 @@ public class GestionClientes extends JFrame
 				// Update form
 		    	ArrayList<String> formLabels = conexion.getTableColumns(currentTable);
 		    	formLabels.remove("foto");		    	
-				for (int i=0; i < formLabels.size(); i++) {					
+				for (int i=0; i < formLabels.size(); i++)
+				{					
 					String propertie = "null";
-					try {
+					try 
+					{
 						propertie = jsonRow.getJSONObject(0).getString(formLabels.get(i));
 					} 
-					catch (JSONException e1) {
+					catch (JSONException e1) 
+					{
 						// TODO Auto-generated catch block
 						e1.printStackTrace();
 						return;
@@ -562,16 +607,12 @@ public class GestionClientes extends JFrame
 		});	
 		
 		
-		
 		// ********** EVENTO DEL COMBO BOX AL SELECCIONAR UNA TABLA ********** 
-		
 		comboBoxMostrar.addActionListener (new ActionListener () 
 		{
 		    public void actionPerformed(ActionEvent e) 
-		    {
-		    					
+		    {			
 		    	currentTable = comboBoxMostrar.getSelectedItem().toString().toLowerCase();
-		    	
 		    	panelFormObject.removeAll();
 
 		    	// ************** CONSTRUCCION DE LA TABLA **************
