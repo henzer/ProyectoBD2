@@ -3,12 +3,16 @@ package modulo1.vistas;
 import java.awt.BorderLayout;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.border.EmptyBorder;
+
+import modulo1.controladores.ControladorDepartamento;
 import modulo1.controladores.ControladorTelefono;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -17,13 +21,13 @@ public class Departamento extends JFrame
 {
 	private JPanel contentPane;
 	private JTable table;
-	private ControladorTelefono control;
+	private ControladorDepartamento control;
 	private GestionClientes parent;
 	
 	public Departamento(GestionClientes parent) 
 	{
 		this.parent = parent;
-		control = new ControladorTelefono();
+		control = new ControladorDepartamento();
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 450, 300);
 		contentPane = new JPanel();
@@ -56,8 +60,8 @@ public class Departamento extends JFrame
 		contentPane.add(table, BorderLayout.CENTER);
 	}
 	
-	private void cerrarVentana(int idDepartamento){
-		//Aquí se asigna este valor a alguna funcion de la clase Gestión Clientes.
+	private void cerrarVentana(int idDepartamento) {
+		parent.modificarCampo(String.valueOf(idDepartamento));
 		this.dispose();
 	}
 

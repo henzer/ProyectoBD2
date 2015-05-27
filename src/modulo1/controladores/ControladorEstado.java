@@ -22,8 +22,8 @@ public class ControladorEstado
 	public DefaultTableModel getData()
 	{
 		DefaultTableModel model = new DefaultTableModel();
-		data = ConexionPostgres.getInstancia().executeQuery("SELECT * FROM pais;");
-		List<String> columnas = ConexionPostgres.getInstancia().getTableColumns("pais");
+		data = ConexionPostgres.getInstancia().executeQuery("SELECT * FROM estado;");
+		List<String> columnas = ConexionPostgres.getInstancia().getTableColumns("estado");
 		for(String header: columnas)
 		{
 			model.addColumn(header);

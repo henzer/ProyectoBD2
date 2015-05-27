@@ -10,12 +10,12 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class ControladorCategorias 
+public class ControladorCategoria 
 {
 
 	private JSONArray data;
 	
-	public ControladorCategorias()
+	public ControladorCategoria()
 	{
 		data = new JSONArray();
 	}
@@ -23,8 +23,8 @@ public class ControladorCategorias
 	public DefaultTableModel getData()
 	{
 		DefaultTableModel model = new DefaultTableModel();
-		data = ConexionPostgres.getInstancia().executeQuery("SELECT * FROM categorias;");
-		List<String> columnas = ConexionPostgres.getInstancia().getTableColumns("categorias");
+		data = ConexionPostgres.getInstancia().executeQuery("SELECT * FROM categoria;");
+		List<String> columnas = ConexionPostgres.getInstancia().getTableColumns("categoria");
 		for(String header: columnas)
 		{
 			model.addColumn(header);

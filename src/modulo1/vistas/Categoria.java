@@ -3,26 +3,30 @@ package modulo1.vistas;
 import java.awt.BorderLayout;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.border.EmptyBorder;
+
+import modulo1.controladores.ControladorCategoria;
 import modulo1.controladores.ControladorTelefono;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class Categorias extends JFrame
+public class Categoria extends JFrame
 {
 	private JPanel contentPane;
 	private JTable table;
-	private ControladorTelefono control;
+	private ControladorCategoria control;
 	private GestionClientes parent;
 	
-	public Categorias(GestionClientes parent) 
+	public Categoria(GestionClientes parent) 
 	{
 		this.parent = parent;
-		control = new ControladorTelefono();
+		control = new ControladorCategoria();
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 450, 300);
 		contentPane = new JPanel();
@@ -41,9 +45,9 @@ public class Categorias extends JFrame
 				int i = table.getSelectedRow();
 				try 
 				{
-					JSONObject categorias = control.getElement(i);
-					System.out.println(categorias);
-					int idCategorias = categorias.getInt("idcategorias");
+					JSONObject categoria = control.getElement(i);
+					System.out.println(categoria);
+					int idCategorias = categoria.getInt("idcategoria");
 					cerrarVentana(idCategorias);
 				} 
 				catch (JSONException e1)
@@ -55,8 +59,8 @@ public class Categorias extends JFrame
 		contentPane.add(table, BorderLayout.CENTER);
 	}
 	
-	private void cerrarVentana(int idCategorias){
-		//Aquí se asigna este valor a alguna funcion de la clase Gestión Clientes.
+	private void cerrarVentana(int idCategoria){
+		parent.modificarCampo(String.valueOf(idCategoria));
 		this.dispose();
 	}
 

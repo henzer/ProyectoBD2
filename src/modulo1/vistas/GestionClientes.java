@@ -22,6 +22,7 @@ import modulo1.controladores.ControladorClientes;
 import java.awt.FlowLayout;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import java.awt.event.MouseListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
@@ -89,6 +90,7 @@ public class GestionClientes extends JFrame
 	private JPanel panelGestionarCliente;
 	private Map<String, JTextField> listFormFields;
 	private Map<String, JCheckBox> listFieldsToShow;
+	private ArrayList<JButton> actionButtons;		// Almacena los botones que son solo funcionales para la tabla clientes.
 	private JTextField textFieldFiltrarID;
 	private JTextField textFieldLike;
 	private ArrayList<String> tableColumns;
@@ -98,13 +100,19 @@ public class GestionClientes extends JFrame
 	private JPanel panelFormObject;
 	private JLabel labelPhotoImage;
 	private String currentTable = "cliente";
+	
+	
+	private JTextField currentEditing;
+	private String currentAction = "";
 
 	
 	/**
 	 * Create the frame.
 	 */
-	public GestionClientes() 
-	{
+	public GestionClientes() {
+		
+		actionButtons = new ArrayList<JButton>();
+		
 		setTitle("Gestion de Clientes");
 		setExtendedState(JFrame.MAXIMIZED_BOTH);
 		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
@@ -278,10 +286,8 @@ public class GestionClientes extends JFrame
 		
 		
 		ArrayList<String> tableColumnsToShow = new ArrayList<String>();		
-		for (int i=0; i<listFieldsToShow.size(); i++)
-		{
-			if (listFieldsToShow.get("checkBox" + tableColumns.get(i)).isSelected())
-			{
+		for (int i=0; i<listFieldsToShow.size(); i++) {
+			if (listFieldsToShow.get("checkBox" + tableColumns.get(i)).isSelected()){
 				tableColumnsToShow.add(tableColumns.get(i));
 			}			
 		}
@@ -346,17 +352,19 @@ public class GestionClientes extends JFrame
 		
 		// ************** NAVEGATION BUTTONS IN FORM ************** 
 		// ************** Button 'GO FIRST' **************
-		JButton buttonFirst = new JButton("<<");
-		buttonFirst.addActionListener(new ActionListener() 
-		{
-			public void actionPerformed(ActionEvent e) 
-			{
+		JButton buttonFirst = new JButton(new ImageIcon("system_images/first.png"));
+		buttonFirst.setToolTipText("Primero");
+		buttonFirst.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if (!currentAction.equals("")){
+					JOptionPane.showMessageDialog(null, "Hay una accion sin completar.", "CRM Clientes", JOptionPane.ERROR_MESSAGE);					
+					return;
+				}
+				
 				JSONObject jsonRow;
-				try 
-				{
+				try {
 					jsonRow = controlClientes.getFirst();
-					if (jsonRow == null)
-					{
+					if (jsonRow == null) {
 						JOptionPane.showMessageDialog(null, "Ocurrió un error al intentar\nobtener el elemento de la tabla..!", "CRM Clientes", JOptionPane.ERROR_MESSAGE);							
 						return;
 					}
@@ -375,12 +383,17 @@ public class GestionClientes extends JFrame
 		});
 		panelGCGestionarNavegar.add(buttonFirst);
 		
+		
 		// ************** Button 'GO PREVIOUS' **************
-		JButton buttonPrevious = new JButton("<");
-		buttonPrevious.addActionListener(new ActionListener() 
-		{
-			public void actionPerformed(ActionEvent e) 
-			{
+		JButton buttonPrevious = new JButton(new ImageIcon("system_images/previous.png"));
+		buttonPrevious.setToolTipText("Anterior");
+		buttonPrevious.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if (!currentAction.equals("")){
+					JOptionPane.showMessageDialog(null, "Hay una accion sin completar.", "CRM Clientes", JOptionPane.ERROR_MESSAGE);					
+					return;
+				}
+				
 				int indice = controlClientes.getPosActual() - 1;				
 				JSONObject jsonRow;
 				try 
@@ -406,12 +419,17 @@ public class GestionClientes extends JFrame
 		});
 		panelGCGestionarNavegar.add(buttonPrevious);
 		
+		
 		// ************** Button 'GO NEXT' **************
-		JButton buttonNext = new JButton(">");
-		buttonNext.addActionListener(new ActionListener() 
-		{
-			public void actionPerformed(ActionEvent e)
-			{
+		JButton buttonNext = new JButton(new ImageIcon("system_images/next.png"));
+		buttonNext.setToolTipText("Siguiente");
+		buttonNext.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if (!currentAction.equals("")){
+					JOptionPane.showMessageDialog(null, "Hay una accion sin completar.", "CRM Clientes", JOptionPane.ERROR_MESSAGE);					
+					return;
+				}
+				
 				int indice = controlClientes.getPosActual() + 1;
 				JSONObject jsonRow;
 				try 
@@ -437,12 +455,17 @@ public class GestionClientes extends JFrame
 		});
 		panelGCGestionarNavegar.add(buttonNext);
 		
+		
 		// ************** Button 'GO LAST' **************
-		JButton buttonLast = new JButton(">>");
-		buttonLast.addActionListener(new ActionListener() 
-		{
-			public void actionPerformed(ActionEvent e) 
-			{
+		JButton buttonLast = new JButton(new ImageIcon("system_images/last.png"));
+		buttonLast.setToolTipText("Ultimo");
+		buttonLast.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if (!currentAction.equals("")){
+					JOptionPane.showMessageDialog(null, "Hay una accion sin completar.", "CRM Clientes", JOptionPane.ERROR_MESSAGE);					
+					return;
+				}
+				
 				JSONObject jsonRow;
 				try 
 				{
@@ -462,88 +485,127 @@ public class GestionClientes extends JFrame
 				}
 				
 				// Si no no hubo error, actualizar el formulario.
-				updateForm(jsonRow);					
+				updateForm(jsonRow);
 			}
 		});
 		panelGCGestionarNavegar.add(buttonLast);
+		
 	
 		JPanel panelGCGestionarGestionar = new JPanel();
 		panelGCGestionar.add(panelGCGestionarGestionar);
 		
 		
-		// ********** Panel de Gestión **********
-		//Boton que permite editar los campos.
-		JButton btnNuevo = new JButton("Nuevo");
-		btnNuevo.addActionListener(new ActionListener()
-		{
-			@Override
-			public void actionPerformed(ActionEvent e) 
-			{
-				Collection<JTextField> valores = listFormFields.values();
-				Iterator<JTextField> textfields = valores.iterator();
-				JTextField modificable = new JTextField();
-				while(textfields.hasNext())
-				{
-					modificable=textfields.next();
-					modificable.setEditable(true);
-					modificable.setText(" ");
-				}
-				
-			}
-		});
-		panelGCGestionarGestionar.add(btnNuevo);
 		
-		//Boton para editar los campos.
-		JButton btnEditar = new JButton("Editar");
-		btnEditar.addActionListener(new ActionListener()
-		{
+		
+		
+		// ********** Panel de Gestión **********
+
+		//ImageIcon imageNewUser = new ImageIcon("system_images/add_user.png");
+		JButton btnNuevo = new JButton(new ImageIcon("system_images/add_user.png"));
+		actionButtons.add(btnNuevo);	// Ver declaración de 'actionButons'.
+		btnNuevo.setToolTipText("Agregar nuevo cliente");
+		btnNuevo.setPreferredSize(new Dimension(60,50));
+		
+		/**
+		 * Evento del botón 'Nuevo Cliente': Hace que los campos sean editables, los vacía y 
+		 * agrega los listeners a aquellos que requieren de una ventana emergente
+		 * para realizar el input.
+		 */
+		btnNuevo.addActionListener(new ActionListener() {
 			@Override
-			public void actionPerformed(ActionEvent e) 
-			{
-				//Arreglos
-				ArrayList<String> valoresCampos=new ArrayList<String>();
-				ArrayList<String> camposTabla = new ArrayList<String>();
-				//Collections
-				Collection<String> nombres =listFormFields.keySet();
-				Collection<JTextField> valores = listFormFields.values();
-				//Iterators
-				Iterator<String> campos = nombres.iterator();
-				Iterator<JTextField> textfields = valores.iterator();
-				//Modificables
-				JTextField modificable = new JTextField();
-				String campo;
-				while(campos.hasNext())
-				{
-					campo=campos.next();
-					camposTabla.add(campo);
+			public void actionPerformed(ActionEvent e) {
+				if (!currentAction.equals("")){
+					JOptionPane.showMessageDialog(null, "Hay una accion sin completar.", "CRM Clientes", JOptionPane.ERROR_MESSAGE);					
+					return;
 				}
-				while(textfields.hasNext())
-				{
-					modificable=textfields.next();
-					modificable.setEditable(true);
-					valoresCampos.add(modificable.getText());
+				
+				currentAction = "addingNewUser";
+				ArrayList<String> fields = conexion.getTableColumns(currentTable);				
+				fields.remove("foto");
+				for (int i=0; i<fields.size(); i++){
+					listFormFields.get("textField" + fields.get(i)).setEditable(true);					
+					listFormFields.get("textField" + fields.get(i)).setText("");
+					if (fields.get(i).equals("idcategoria") || fields.get(i).equals("iddepartamento") || fields.get(i).equals("idestado") || fields.get(i).equals("idtelefono")){
+						listFormFields.get("textField" + fields.get(i)).addMouseListener(textFieldsListener);
+					}
 				}
-				String query=updateCliente(camposTabla, valoresCampos);
-				boolean retorno=conexion.executeUpdate(query);
-				if(retorno)
-				{
-					JOptionPane.showMessageDialog(null, "Cliente insertado exitosamente...");
+				listFormFields.get("textField" + fields.get(0)).requestFocus();
+			}
+		});
+
+		panelGCGestionarGestionar.add(btnNuevo);		
+		
+		JButton btnEditar = new JButton(new ImageIcon("system_images/edit_user.png"));
+		actionButtons.add(btnEditar);	// Ver declaración de 'actionButons'.
+		btnEditar.setToolTipText("Editar cliente");
+		btnEditar.setPreferredSize(new Dimension(60,50));
+		
+		/**
+		 * Evento del botón 'Editar Cliente': Hace que los campos sean editables y
+		 * agrega los listeners a aquellos que requieren de una ventana emergente
+		 * para realizar el input.
+		 */
+		btnEditar.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (!currentAction.equals("")){
+					JOptionPane.showMessageDialog(null, "Hay una accion sin completar.", "CRM Clientes", JOptionPane.ERROR_MESSAGE);					
+					return;
 				}
-				else
-				{
-					JOptionPane.showMessageDialog(null, "No se pudo insertar el cliente");
+				
+				currentAction = "updatingUser";
+				ArrayList<String> fields = conexion.getTableColumns(currentTable);				
+				fields.remove("foto");
+				for (int i=0; i<fields.size(); i++){
+					listFormFields.get("textField" + fields.get(i)).setEditable(true);					
+					if (fields.get(i).equals("idcategoria") || fields.get(i).equals("iddepartamento") || fields.get(i).equals("idestado") || fields.get(i).equals("idtelefono")){
+						listFormFields.get("textField" + fields.get(i)).addMouseListener(textFieldsListener);
+					}
 				}
+				listFormFields.get("textField" + fields.get(0)).requestFocus();
 				
 			}
 		});
+		
 		panelGCGestionarGestionar.add(btnEditar);
-		JButton btnGuardar = new JButton("Agregar");
-		panelGCGestionarGestionar.add(btnGuardar);
-		JButton btnEliminar = new JButton("Eliminar");
+		
+		
+		
+		JButton btnGuardar = new JButton(new ImageIcon("system_images/store_user.png"));
+		actionButtons.add(btnGuardar);	// Ver declaración de 'actionButons'.
+		btnGuardar.setToolTipText("Guardar cliente");
+		btnGuardar.setPreferredSize(new Dimension(60,50));
+		btnGuardar.addActionListener(updateClienteListener);	// Ver definición de 'updateClienteListener'.
+		panelGCGestionarGestionar.add(btnGuardar);		
+		
+		
+		JButton btnEliminar = new JButton(new ImageIcon("system_images/delete_user.png"));
+		actionButtons.add(btnEliminar);	// Ver declaración de 'actionButons'.
+		btnEliminar.setToolTipText("Eliminar cliente");
+		btnEliminar.setPreferredSize(new Dimension(60,50));
+		btnEliminar.addActionListener(eliminarClienteListener);		// Ver definición de 'eliminarClienteListener'.
 		panelGCGestionarGestionar.add(btnEliminar);
 		
-		panelGestionarCliente.add(panelGCGestionar, BorderLayout.SOUTH);
 		
+		
+		
+
+		
+		// ****************** FALTAN POR PROGRAMAR ******************
+		// Botones NuevoCampo y VerTweets.
+		
+		JButton btnNuevoCampo = new JButton(new ImageIcon("system_images/add_column.png"));
+		actionButtons.add(btnNuevoCampo);	// Ver declaración de 'actionButons'.
+		btnNuevoCampo.setToolTipText("Agregar nuevo campo");
+		btnNuevoCampo.setPreferredSize(new Dimension(60,50));
+		panelGCGestionarGestionar.add(btnNuevoCampo);
+		
+		JButton btnVerTweets = new JButton(new ImageIcon("system_images/user_tweets.png"));
+		actionButtons.add(btnVerTweets);	// Ver declaración de 'actionButons'.
+		btnVerTweets.setToolTipText("Ver tweets de cliente");
+		btnVerTweets.setPreferredSize(new Dimension(60,50));
+		panelGCGestionarGestionar.add(btnVerTweets);		
+				
 		panelGestionarCliente.add(panelGCGestionar, BorderLayout.SOUTH);
 		panelGestionarCliente.updateUI();
 		
@@ -556,18 +618,18 @@ public class GestionClientes extends JFrame
 		
 		// ***************** EVENTO DEL BOTON DE BUSQUEDA DEL FORMULARIO *****************
 		
-		btnBuscar.addActionListener(new ActionListener()
-		{
-			public void actionPerformed(ActionEvent e) 
-			{
+		btnBuscar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if (!currentAction.equals("")){
+					JOptionPane.showMessageDialog(null, "Hay una accion sin completar.", "CRM Clientes", JOptionPane.ERROR_MESSAGE);					
+					return;
+				}
 				// Getting id...
 				int id;
-				try
-				{
+				try {
 					id = Integer.parseInt(textField_1.getText());
 				}
-				catch (Exception err)
-				{
+				catch (Exception err) {
 					JOptionPane.showMessageDialog(null, "ID inválido..!", "CRM Clientes", JOptionPane.ERROR_MESSAGE);
 					textField_1.selectAll();
 					textField_1.requestFocusInWindow();
@@ -577,8 +639,7 @@ public class GestionClientes extends JFrame
 				// Getting properties for this id.
 				String query = "SELECT * FROM " + currentTable + " WHERE id" + currentTable + " = " + id + ";" ;
 				JSONArray jsonRow = conexion.executeQuery(query);
-				if (jsonRow.length() == 0)
-				{
+				if (jsonRow.length() == 0) {
 					JOptionPane.showMessageDialog(null, "No se encontró ningún resultado\ncon el ID especificado..!", "CRM Clientes", JOptionPane.ERROR_MESSAGE);
 					textField_1.selectAll();
 					textField_1.requestFocusInWindow();
@@ -586,34 +647,81 @@ public class GestionClientes extends JFrame
 				}
 				
 				// Update form
-		    	ArrayList<String> formLabels = conexion.getTableColumns(currentTable);
-		    	formLabels.remove("foto");		    	
-				for (int i=0; i < formLabels.size(); i++)
-				{					
+		    	ArrayList<String> formLabels = conexion.getTableColumns(currentTable);		    	
+				for (int i=0; i < formLabels.size(); i++) {
+					
+					/**
+					 *  If table showing is 'cliente', field 'foto' exits.
+					 *  So, we can get user photo url and update the view. 
+					 */
+					if (formLabels.get(i).equals("foto")){
+						// *************** Getting user photo *************** 
+					    String userPhotoUrl = "null";
+					    try {
+					    	userPhotoUrl = jsonRow.getJSONObject(0).getString("foto");
+						} 
+					    catch (JSONException error) {
+							// TODO Auto-generated catch block
+					    	error.printStackTrace();
+							JOptionPane.showMessageDialog(null, "Ocurrió un error al intentar\nobtener la foto del usuario..!", "CRM Clientes", JOptionPane.ERROR_MESSAGE);				
+							return;
+						}
+				        ImageIcon icon = getPhotoResized(userPhotoUrl);
+				        if (icon == null){
+				        	icon = getPhotoResized("default_user.png");
+				        }
+				        labelPhotoImage.setIcon(icon);
+						continue;
+					}
+					
+					
 					String propertie = "null";
-					try 
-					{
+					try {
 						propertie = jsonRow.getJSONObject(0).getString(formLabels.get(i));
 					} 
-					catch (JSONException e1) 
-					{
+					catch (JSONException e1) {
 						// TODO Auto-generated catch block
 						e1.printStackTrace();
 						return;
 					}
 					listFormFields.get("textField" + formLabels.get(i)).setText(propertie);
 				}
-								
+				
+				controlClientes.setPosActual(id);
+				table.setRowSelectionInterval(controlClientes.getPosActual(), controlClientes.getPosActual());
+				
 			}
 		});	
 		
 		
 		// ********** EVENTO DEL COMBO BOX AL SELECCIONAR UNA TABLA ********** 
-		comboBoxMostrar.addActionListener (new ActionListener () 
-		{
-		    public void actionPerformed(ActionEvent e) 
-		    {			
+		comboBoxMostrar.addActionListener (new ActionListener () {
+		    public void actionPerformed(ActionEvent e) {		    	
+				if (!currentAction.equals("")){
+					JOptionPane.showMessageDialog(null, "Hay una accion sin completar.", "CRM Clientes", JOptionPane.ERROR_MESSAGE);					
+					return;
+				}
+				
 		    	currentTable = comboBoxMostrar.getSelectedItem().toString().toLowerCase();
+	    		
+		    	// Enable or Disable checkboxes used by seraching with filters because this only works with tabla 'clientes'.
+		    	Collection<JCheckBox> textFields = listFieldsToShow.values();
+	    		Iterator<JCheckBox> iter = textFields.iterator();
+		    	if (currentTable.equals("cliente")){
+		    		chckbxSelectAll.setEnabled(true);
+		    		while (iter.hasNext())
+		    			iter.next().setEnabled(true);
+		    		for (int i=0; i<actionButtons.size(); i++)
+		    			actionButtons.get(i).setEnabled(true);
+		    	}
+		    	else{
+		    		chckbxSelectAll.setEnabled(false);
+		    		while (iter.hasNext())
+		    			iter.next().setEnabled(false);		
+		    		for (int i=0; i<actionButtons.size(); i++)
+		    			actionButtons.get(i).setEnabled(false);
+		    	}
+		    	
 		    	panelFormObject.removeAll();
 
 		    	// ************** CONSTRUCCION DE LA TABLA **************
@@ -656,10 +764,13 @@ public class GestionClientes extends JFrame
 		
 		// ***************** EVENTO DEL BOTON CON CONSULTA CON FILTROS *****************		
 		
-		btnBuscar_1.addActionListener(new ActionListener()
-		{
-			public void actionPerformed(ActionEvent e) 
-			{
+		btnBuscar_1.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if (!currentAction.equals("")){
+					JOptionPane.showMessageDialog(null, "Hay una accion sin completar.", "CRM Clientes", JOptionPane.ERROR_MESSAGE);					
+					return;
+				}
+				
 				// La búsqueda con filtros sólo funciona sobre la tabla clientes..!
 				if (!currentTable.equals("cliente")) {
 					JOptionPane.showMessageDialog(null, "La búsqueda con filtros sólo\nfunciona sobre la tabla clientes..!", "CRM Clientes", JOptionPane.ERROR_MESSAGE);					
@@ -739,6 +850,11 @@ public class GestionClientes extends JFrame
 		table.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
+				if (!currentAction.equals("")){
+					JOptionPane.showMessageDialog(null, "Hay una accion sin completar.", "CRM Clientes", JOptionPane.ERROR_MESSAGE);					
+					return;
+				}
+				
 				int indice = table.getSelectedRow();
 				JSONObject jsonRow;
 				try {
@@ -830,7 +946,7 @@ public class GestionClientes extends JFrame
 			
 		    JLabel label = new JLabel(formLabels.get(i) + " : ", JLabel.TRAILING);		    
 		    panelGCForm.add(label);		    
-		    JTextField textField = new JTextField();
+		    JTextField textField = new JTextField();		    
 		    if (object != null) {
 			    String rowLabel = "null";
 			    try {
@@ -843,9 +959,9 @@ public class GestionClientes extends JFrame
 					return;
 				}
 			    textField.setText(rowLabel);
-		    }
-		    
-		    textField.setEditable(false);
+		    }		 
+		    textField.setName("textField" + formLabels.get(i));
+		    textField.setEditable(false);		    
 		    label.setLabelFor(textField);
 		    panelGCForm.add(textField);
 		    listFormFields.put("textField" + formLabels.get(i), textField);
@@ -883,7 +999,7 @@ public class GestionClientes extends JFrame
 			    String userPhotoUrl = "null";
 			    try {
 			    	userPhotoUrl = jsonRow.getString("foto");
-				} 
+				}
 			    catch (JSONException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -917,14 +1033,15 @@ public class GestionClientes extends JFrame
 	 * @param valoresColumnas
 	 * @return query con la ejecucion a realizar en Postgres.
 	 */
-	private String clienteNuevo(ArrayList<String> valoresColumnas)
-	{
-		String query = "Insert into cliente values("+valoresColumnas.get(0);
-		for (int i=1; i<valoresColumnas.size();i++)
-		{
-			query+=","+valoresColumnas.get(i);
+	private String clienteNuevo(ArrayList<String> valoresColumnas, ArrayList<String> columnsType) {
+		String query = "INSERT INTO " + currentTable + " VALUES (" + valoresColumnas.get(0);
+		for (int i = 1; i<valoresColumnas.size();i++){
+			if (columnsType.get(i).contains("text") || columnsType.get(i).contains("date") || columnsType.get(i).contains("char"))
+				query +=", '" + valoresColumnas.get(i) + "'";
+			else
+				query +=", " + valoresColumnas.get(i);
 		}
-		query+=");";
+		query += ");";
 		System.out.println(query);
 		return query;
 	}
@@ -934,9 +1051,8 @@ public class GestionClientes extends JFrame
 	 * @param idCliente
 	 * @return query con la ejecucion a realizar en Postgres.
 	 */
-	private String eliminarCliente(String idCliente)
-	{
-		String query = "Delete from cliente where id="+idCliente+";";
+	private String eliminarCliente(String idCliente) {
+		String query = "DELETE FROM " + currentTable + " WHERE idcliente = " + idCliente + ";";
 		System.out.println(query);
 		return query;
 	}
@@ -946,14 +1062,16 @@ public class GestionClientes extends JFrame
 	 * @param nombresColumnas, camposColumnas
 	 * @return query con la ejecucion a realizar en Postgres.
 	 */
-	private String updateCliente(ArrayList<String> nombresColumnas, ArrayList<String> camposColumnas)
-	{
-		String query ="Update cliente set";
-		for(int i=0; i<=nombresColumnas.size();i++)
-		{
-			query+=nombresColumnas.get(i)+"="+camposColumnas.get(i);
+	private String updateCliente(ArrayList<String> nombresColumnas, ArrayList<String> camposColumnas,  ArrayList<String> columnsType) {
+		String query ="UPDATE " + currentTable + " SET ";
+		for(int i=0; i<nombresColumnas.size(); i++){
+			if (columnsType.get(i).contains("text") || columnsType.get(i).contains("date") || columnsType.get(i).contains("char"))
+				query += nombresColumnas.get(i) + " = '" + camposColumnas.get(i) + "', ";
+			else
+				query += nombresColumnas.get(i) + " = " + camposColumnas.get(i) + ", ";
 		}
-		query+=";";
+		query = query.substring(0, query.length()-2);
+		query += " WHERE " + nombresColumnas.get(0) + " = " + listFormFields.get("textField" + nombresColumnas.get(0)).getText() + ";";
 		System.out.println(query);
 		return query;
 	}
@@ -963,8 +1081,7 @@ public class GestionClientes extends JFrame
 	 * @param nombresColumnas, camposColumnas
 	 * @return query con la ejecucion a realizar en Postgres.
 	 */
-	private String agregarCampo(String nuevoCampo, String valorCampo)
-	{
+	private String agregarCampo(String nuevoCampo, String valorCampo) {
 		String query = "Alter Table cliente Add Column"+nuevoCampo+" "+valorCampo+";";
 		System.out.println(query);
 		return query;
@@ -988,11 +1105,15 @@ public class GestionClientes extends JFrame
 		return resizedImage;
     }
     
-    
+    /**
+     * Resize an image to 100x100 pixeles.
+     * @param userPhotoUrl
+     * @return
+     */
     public ImageIcon getPhotoResized(String userPhotoUrl){
     	BufferedImage originalImage = null;
 		try {
-			originalImage = ImageIO.read(new File("images/" + userPhotoUrl));
+			originalImage = ImageIO.read(new File("user_photos/" + userPhotoUrl));
 		} catch (IOException e3) {
 			JOptionPane.showMessageDialog(null, "No se encontró la foto del cliente..!", "CRM Clientes", JOptionPane.ERROR_MESSAGE);
 			// TODO Auto-generated catch block
@@ -1010,5 +1131,225 @@ public class GestionClientes extends JFrame
 
         return icon;
     }
+    
+    
+    
+    
+    
+    /**
+     * Listener para ya sea agregar nuevo cliente o actualizar datos de cliente. 
+     */
+    ActionListener updateClienteListener = new ActionListener(){
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			if (currentAction.equals("")){
+				JOptionPane.showMessageDialog(null, "Ninguna cambio para guardar..!", "CRM Clientes", JOptionPane.ERROR_MESSAGE);
+				return;
+			}
+			
+			// TODO Auto-generated method stub			
+			ArrayList<String> fields = conexion.getTableColumns(currentTable);
+			ArrayList<String> values = new ArrayList<String>();
+			ArrayList<String> columnsType = conexion.getTableColumnsType(currentTable);
+			fields.remove("foto");	// Este remove sirve solo para evitar el error cuando se recorre la lista de TextFields.
+			for (int i=0; i<fields.size(); i++){				
+				JTextField textField = listFormFields.get("textField" + fields.get(i));
+				// Verificacion de que el campo no este vacío.
+				if (textField.getText().equals("")){
+					JOptionPane.showMessageDialog(null, "Complete todo los campos..!", "CRM Clientes", JOptionPane.ERROR_MESSAGE);
+					listFormFields.get("textField" + fields.get(0)).requestFocus();
+					return;
+				}
+				values.add(textField.getText());
+			}
+			
+			fields.add("foto");		// Se regresa el campo foto.
+			
+			// ************************* Obtener la url de la imagen *************************
+			String urlPhoto = "default_user.png";
+			values.add(urlPhoto);
+			
+			
+			
+			// Si la ACCION es agregar nuevo cliente....
+			if (currentAction.equals("addingNewUser")){
+				String query = clienteNuevo(values, columnsType);
+				boolean result = controlClientes.updateCliente(query);
+				if (!result){
+					JOptionPane.showMessageDialog(null, "No se pudo insertar cliente.\nAsegúrese de que todos los campos "
+							+ "sean correctos.", "CRM Clientes", JOptionPane.ERROR_MESSAGE);
+					listFormFields.get("textField" + fields.get(0)).requestFocus();
+					return;
+				}
+				else
+					JOptionPane.showMessageDialog(null, "Cliente insertado correctamente.", "CRM Clientes", JOptionPane.ERROR_MESSAGE);
+				
+			}
+			
+			// Si la ACCION es actualizar cliente....
+			else if (currentAction.equals("updatingUser")){
+				String query = updateCliente(fields, values, columnsType);
+				boolean result = controlClientes.updateCliente(query);
+				if (!result){
+					JOptionPane.showMessageDialog(null, "No se pudo actualizar cliente.\nAsegúrese de que todos los campos "
+							+ "sean correctos.", "CRM Clientes", JOptionPane.ERROR_MESSAGE);
+					listFormFields.get("textField" + fields.get(0)).requestFocus();
+					return;
+				}
+				else
+					JOptionPane.showMessageDialog(null, "Cliente actualizado correctamente.", "CRM Clientes", JOptionPane.ERROR_MESSAGE);
+			}
+			
+			
+
+			// ********* ACTUALIZAR LA TABLA DE DATOS *********			
+			ArrayList<String> tableColumnsToShow = new ArrayList<String>();		
+			for (int i=0; i<listFieldsToShow.size(); i++) {
+				if (listFieldsToShow.get("checkBox" + tableColumns.get(i)).isSelected()){
+					tableColumnsToShow.add(tableColumns.get(i));
+				}			
+			}			
+			controlClientes = ControladorClientes.getInstancia();
+			String query = "SELECT * FROM cliente;";
+			DefaultTableModel dataModel = controlClientes.getDataClientes(tableColumnsToShow, query);		
+			table.setModel(dataModel);
+			table.updateUI();
+			
+			
+			
+			// Dejar inactivos y no editables todos los campos.
+			fields.remove("foto");		// De nuevo, para evitar el error removemos el campo 'foto'.
+			for (int i=0; i<fields.size(); i++){				
+				JTextField textField = listFormFields.get("textField" + fields.get(i));				
+				textField.setEditable(false);
+				if (fields.get(i).equals("idcategoria") || fields.get(i).equals("iddepartamento") || fields.get(i).equals("idestado") || fields.get(i).equals("idtelefono")){
+					textField.removeMouseListener(textFieldsListener);
+				}
+			}
+			currentAction = "";
+			
+		}
+    	
+    };
+    
+    
+    /**
+     * Listener para el botón eliminar cliennte. Elimina un cliente de la tabla.
+     */
+    ActionListener eliminarClienteListener = new ActionListener(){
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			// TODO Auto-generated method stub
+			if (!currentAction.equals("")){
+				JOptionPane.showMessageDialog(null, "Hay una accion sin completar.", "CRM Clientes", JOptionPane.ERROR_MESSAGE);					
+				return;
+			}
+			String idCliente = listFormFields.get("textFieldidcliente").getText();
+			String query = eliminarCliente(idCliente);
+			
+			boolean result = controlClientes.updateCliente(query);
+			if (!result){
+				JOptionPane.showMessageDialog(null, "No se pudo eliminar cliente.", "CRM Clientes", JOptionPane.ERROR_MESSAGE);				
+				return;
+			}
+			else
+				JOptionPane.showMessageDialog(null, "Cliente eliminado correctamente.", "CRM Clientes", JOptionPane.ERROR_MESSAGE);
+			
+			
+			currentAction = "";
+			
+			// ********* ACTUALIZAR LA TABLA DE DATOS *********			
+			ArrayList<String> tableColumnsToShow = new ArrayList<String>();		
+			for (int i=0; i<listFieldsToShow.size(); i++) {
+				if (listFieldsToShow.get("checkBox" + tableColumns.get(i)).isSelected()){
+					tableColumnsToShow.add(tableColumns.get(i));
+				}			
+			}			
+			controlClientes = ControladorClientes.getInstancia();
+			query = "SELECT * FROM cliente;";
+			DefaultTableModel dataModel = controlClientes.getDataClientes(tableColumnsToShow, query);		
+			table.setModel(dataModel);
+			table.updateUI();
+			
+		}
+    	
+    };
+    
+    
+    
+    
+    /**
+     * Listener para los campos de texto que requieren un id.
+     * El evento abre la ventana con los datos requeridos por el campo.
+     */
+    MouseListener textFieldsListener = new MouseListener(){
+
+		@Override
+		public void mouseClicked(MouseEvent e) {
+			// Obtener el origen del click.
+			JTextField textFieldClicked = (JTextField)e.getSource();
+			System.out.println("TextField cliqueado: " + textFieldClicked.getName());
+			// Si el campo clickeado es el de idcategoria, abrir la ventana con todas las categorías...
+			if (textFieldClicked.getName().equals("textFieldidcategoria")){
+				currentEditing = listFormFields.get("textFieldidcategoria");
+				controlClientes.openWindowCategoria(GestionClientes.this);
+			}
+			// Si el campo clickeado es el de iddepartamento, abrir la ventana con todos los departamentos...
+			else if (textFieldClicked.getName().equals("textFieldiddepartamento")){
+				currentEditing = listFormFields.get("textFieldiddepartamento");
+				controlClientes.openWindowDepartamento(GestionClientes.this);
+			}
+			// Si el campo clickeado es el de idestado, abrir la ventana con todos los estados...
+			else if (textFieldClicked.getName().equals("textFieldidestado")){
+				currentEditing = listFormFields.get("textFieldidestado");
+				controlClientes.openWindowEstado(GestionClientes.this);
+			}
+			// Si el campo clickeado es el de idtelefono, abrir la ventana con todos los telefonos...
+			else {
+				currentEditing = listFormFields.get("textFieldidtelefono");
+				controlClientes.openWindowTelefono(GestionClientes.this);
+			}			
+			
+		}
+
+		@Override
+		public void mousePressed(MouseEvent e) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void mouseReleased(MouseEvent e) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void mouseEntered(MouseEvent e) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void mouseExited(MouseEvent e) {
+			// TODO Auto-generated method stub
+			
+		}
+		
+	};   
+	
+	
+	/**
+	 * Mediante este metodo es que un campo clickeado, obtenga el valor seleccionado
+	 * desde la ventana emergente. Es modificado por la clase de dicha ventana. 
+	 * @param value
+	 */
+    public void modificarCampo(String value){
+    	currentEditing.setText(value);
+    }
+	
 	
 }
+
+

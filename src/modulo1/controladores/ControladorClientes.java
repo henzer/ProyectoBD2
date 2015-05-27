@@ -2,6 +2,7 @@ package modulo1.controladores;
 
 import java.util.List;
 
+import javax.swing.UIManager;
 import javax.swing.table.DefaultTableModel;
 
 import org.json.JSONArray;
@@ -9,6 +10,11 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import modulo1.conexion.ConexionPostgres;
+import modulo1.vistas.Categoria;
+import modulo1.vistas.Departamento;
+import modulo1.vistas.Estado;
+import modulo1.vistas.GestionClientes;
+import modulo1.vistas.Telefono;
 import modulo2.conexion.Conexion;
 
 public class ControladorClientes
@@ -117,5 +123,79 @@ public class ControladorClientes
 		JSONArray result = ConexionPostgres.getInstancia().executeQuery("SELECT * FROM metadata_clientes;");
 		return result;
 	}
+	
+	
+	
+	
+	
+	public boolean updateCliente(String query){		
+		return ConexionPostgres.getInstancia().executeUpdate(query);
+	}
+	
+	
+	
+	
+	/**
+	 * METODOS QUE ABREN LAS VENTANAS CON TODA LA DATA DISPONIBLE.
+	 * CADA UNO, ABRE ESPECIFICAMENTE UNA VENTANA.
+	 */
+	
+	
+	// Metodo que visualiza la ventana Telefono.
+	public void openWindowCategoria(GestionClientes parent){
+		try{
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+			Categoria ventanaEstado = new Categoria(parent);
+			ventanaEstado.setVisible(true);			
+		}
+			catch (Exception e){
+			e.printStackTrace();
+		}		
+	}
+	
+	// Metodo que visualiza la ventana Telefono.
+	public void openWindowDepartamento(GestionClientes parent){
+		try{
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+			Departamento ventanaDepartamento = new Departamento(parent);
+			ventanaDepartamento.setVisible(true);			
+		}
+			catch (Exception e){
+			e.printStackTrace();
+		}		
+	}
+	
+	// Metodo que visualiza la ventana Telefono.
+	public void openWindowEstado(GestionClientes parent){
+		try{
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+			Estado ventanaEstado = new Estado(parent);
+			ventanaEstado.setVisible(true);			
+		}
+			catch (Exception e){
+			e.printStackTrace();
+		}		
+	}	
+	
+	// Metodo que visualiza la ventana Telefono.
+	public void openWindowTelefono(GestionClientes parent){
+		try{
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+			Telefono ventanaTelefono = new Telefono(parent);
+			ventanaTelefono.setVisible(true);			
+		}
+			catch (Exception e){
+			e.printStackTrace();
+		}		
+	}
+	
+
+
+	
+
+	
+
+	
+	
 }
 

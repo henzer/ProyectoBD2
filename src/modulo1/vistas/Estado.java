@@ -10,6 +10,7 @@ import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.border.EmptyBorder;
 
+import modulo1.controladores.ControladorEstado;
 import modulo1.controladores.ControladorTelefono;
 
 import org.json.JSONException;
@@ -19,13 +20,13 @@ public class Estado extends JFrame
 {
 	private JPanel contentPane;
 	private JTable table;
-	private ControladorTelefono control;
+	private ControladorEstado control;
 	private GestionClientes parent;
 	
 	public Estado(GestionClientes parent) 
 	{
 		this.parent = parent;
-		control = new ControladorTelefono();
+		control = new ControladorEstado();
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 450, 300);
 		contentPane = new JPanel();
@@ -48,7 +49,7 @@ public class Estado extends JFrame
 					System.out.println(estado);
 					int idEstado = estado.getInt("idestado");
 					cerrarVentana(idEstado);
-				} 
+				}
 				catch (JSONException e1)
 				{
 					e1.printStackTrace();
@@ -58,8 +59,8 @@ public class Estado extends JFrame
 		contentPane.add(table, BorderLayout.CENTER);
 	}
 	
-	private void cerrarVentana(int idEstado){
-		//Aquí se asigna este valor a alguna funcion de la clase Gestión Clientes.
+	private void cerrarVentana(int idEstado) {
+		parent.modificarCampo(String.valueOf(idEstado));
 		this.dispose();
 	}
 

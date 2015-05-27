@@ -49,6 +49,7 @@ public class Telefono extends JFrame
 					JSONObject telefono = control.getElement(i);
 					System.out.println(telefono);
 					int idTelefono = telefono.getInt("idtelefono");
+					System.out.println("ID seleccionado: " + idTelefono);
 					cerrarVentana(idTelefono);
 				} 
 				catch (JSONException e1) 
@@ -61,10 +62,8 @@ public class Telefono extends JFrame
 		contentPane.add(table, BorderLayout.CENTER);
 	}
 	
-	private void cerrarVentana(int idTelefono)
-	{
-		//Aquí se asigna este valor a alguna funcion de la clase Gestión Clientes.
-		
+	private void cerrarVentana(int idTelefono) {
+		parent.modificarCampo(String.valueOf(idTelefono));
 		this.dispose();
 	}
 	
