@@ -86,7 +86,7 @@ public class ControladorClientes
 	
 	//Inserta una nueva columna. Lanza una Excepción si se intenta crear una columna que ya existe.
 	//Cualquier otro error no lo maneja, simplemente lanzaría false. (Se debe manejar desde donde se llame).
-	public boolean insertNewRow(String titulo, String type, String _default) throws Exception{
+	public boolean insertNewRow(String titulo, String type) throws Exception{
 		List<String> columns = ConexionPostgres.getInstancia().getTableColumns("clientes");
 		String newName = "nueva" + columns.size();
 		int next = columns.size() + 1;
@@ -103,7 +103,7 @@ public class ControladorClientes
 		this.posActual = posActual;
 	}
 	
-	
+	//Sirve para obtener la metadata de la tabla Clientes
 	public JSONArray getMetadata(){
 		JSONArray result = ConexionPostgres.getInstancia().executeQuery("SELECT * FROM metadata_clientes;");
 		return result;
