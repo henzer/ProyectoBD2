@@ -89,9 +89,10 @@ public class ControladorClientes
 	public boolean insertNewRow(String titulo, String type, String _default) throws Exception{
 		List<String> columns = ConexionPostgres.getInstancia().getTableColumns("clientes");
 		String newName = "nueva" + columns.size();
+		int next = columns.size() + 1;
 		if(columns.contains(newName))
 			throw new Exception("ERROR.-Ya existe una columna con ese nombre");
-		return ConexionPostgres.getInstancia().executeUpdate("ALTER TABLE clientes ADD COLUMN "+newName+" "+ type +" DEFAULT "+_default+";");		
+		return ConexionPostgres.getInstancia().executeUpdate("INSERT INTO metadata_clientes values ("+next+", '"+newName+"', '"+type+"', '"+titulo+"', 'F');");		
 	}
 
 	public int getPosActual() {
