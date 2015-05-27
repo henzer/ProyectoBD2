@@ -1,30 +1,25 @@
 package modulo1.vistas;
 
 import java.awt.BorderLayout;
-import java.awt.EventQueue;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-import javax.swing.border.EmptyBorder;
 import javax.swing.JTable;
-
+import javax.swing.ListSelectionModel;
+import javax.swing.border.EmptyBorder;
+import modulo1.controladores.ControladorTelefono;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import modulo1.controladores.ControladorTelefono;
-import javax.swing.ListSelectionModel;
-
-public class Telefono extends JFrame 
+public class Categorias extends JFrame
 {
 	private JPanel contentPane;
 	private JTable table;
 	private ControladorTelefono control;
 	private GestionClientes parent;
 	
-	public Telefono(GestionClientes parent) 
+	public Categorias(GestionClientes parent) 
 	{
 		this.parent = parent;
 		control = new ControladorTelefono();
@@ -41,35 +36,28 @@ public class Telefono extends JFrame
 		table.addMouseListener(new MouseAdapter()
 		{
 			@Override
-			public void mouseClicked(MouseEvent e)
+			public void mouseClicked(MouseEvent e) 
 			{
 				int i = table.getSelectedRow();
-				try
+				try 
 				{
-					JSONObject telefono = control.getElement(i);
-					System.out.println(telefono);
-					int idTelefono = telefono.getInt("idtelefono");
-					cerrarVentana(idTelefono);
+					JSONObject categorias = control.getElement(i);
+					System.out.println(categorias);
+					int idCategorias = categorias.getInt("idcategorias");
+					cerrarVentana(idCategorias);
 				} 
-				catch (JSONException e1) 
+				catch (JSONException e1)
 				{
 					e1.printStackTrace();
 				}
 			}
-			
 		});
 		contentPane.add(table, BorderLayout.CENTER);
 	}
 	
-	private void cerrarVentana(int idTelefono)
-	{
+	private void cerrarVentana(int idCategorias){
 		//Aquí se asigna este valor a alguna funcion de la clase Gestión Clientes.
-		
 		this.dispose();
 	}
-	
-	
-	
-	
 
 }
