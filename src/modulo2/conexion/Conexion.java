@@ -123,6 +123,7 @@ public class Conexion{
 		}finally{
 			cursor.close();
 		}
+		System.out.println(result);
 		return result;
 	}
 	
