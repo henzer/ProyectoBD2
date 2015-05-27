@@ -182,6 +182,32 @@ public class ConexionPostgres
 		return columns;
 	}
 	
+	
+	/**
+	 * Get columns type for a specific table.
+	 * @param tableName Table name to inspect.
+	 * @return ArrayList with columns type.
+	 */
+	public ArrayList<String> getTableColumnsType(String tableName){		
+		ArrayList<String> columns = null;
+	    DatabaseMetaData metadata;
+		try {
+			metadata = connection.getMetaData();
+		    ResultSet resultSet = metadata.getColumns(null, null, tableName, null);
+		    columns = new ArrayList<String>();
+		    while (resultSet.next()) {
+		    	//String name = resultSet.getString("COLUMN_NAME");
+		    	String type = resultSet.getString("TYPE_NAME"); 		    	
+		    	//int size = resultSet.getInt("COLUMN_SIZE");
+		    	columns.add(type);
+		    }
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return columns;
+	}
+	
 	//INSERT INTO clientes VALUES(0, 'Cesar Anibal', 'Luis Alvarado', 'Las Charcas, Z11', 'cesarluis93@gmail.com', '22/02/93', 'M', '29-365686', 0, 0, 0, 0);
 	
 }
