@@ -38,6 +38,7 @@ import javax.swing.JCheckBox;
 import java.awt.GridLayout;
 
 import javax.swing.border.BevelBorder;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
@@ -74,6 +75,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.awt.event.ItemListener;
 import java.awt.event.ItemEvent;
@@ -114,6 +116,9 @@ public class GestionClientes extends JFrame
 	
 	private JTextField currentEditing;
 	private String currentAction = "";
+	
+	private BufferedImage currentImage;
+	private String nameCurrentImage = "default_user.png";
 
 	
 	/**
@@ -331,21 +336,31 @@ public class GestionClientes extends JFrame
 		{
 			public void actionPerformed(ActionEvent arg0) 
 			{
-				path = AbrirFoto();
-				try 
-				{
-					copyFile(new File(path.getPath()), new File("C:/Users/fred__000/Desktop/Copy 1 of ProyectoBD2/user_photos/"+path.getName()));
-				} 
-				catch (IOException e) 
-				{
-					// TODO Auto-generated catch block
+//				path = AbrirFoto();
+//				try 
+//				{
+//					copyFile(new File(path.getPath()), new File("C:/Users/fred__000/Desktop/Copy 1 of ProyectoBD2/user_photos/"+path.getName()));
+//				} 
+//				catch (IOException e) 
+//				{
+//					// TODO Auto-generated catch block
+//					e.printStackTrace();
+//				}
+//				
+//				photo=new ImageIcon();
+//				photo=getPhotoResized(path.getName());
+//				labelPhotoImage.setPreferredSize(new Dimension(100, 100));
+//				labelPhotoImage.setIcon(photo);
+				int idActual;
+				try {
+					idActual = ((JSONObject)controlClientes.getElement(controlClientes.getPosActual())).getInt("idcliente");
+					cargarImagen(""+idActual);
+				} catch (JSONException e) {
+					e.printStackTrace();
+				} catch (Exception e) {
 					e.printStackTrace();
 				}
 				
-				photo=new ImageIcon();
-				photo=getPhotoResized(path.getName());
-				labelPhotoImage.setPreferredSize(new Dimension(100, 100));
-				labelPhotoImage.setIcon(photo);
 			}
 		});
 		panelUserImage.add(btnNewButton);
@@ -1227,7 +1242,7 @@ public class GestionClientes extends JFrame
 			fields.add("foto");		// Se regresa el campo foto.
 			
 			// ************************* Obtener la url de la imagen *************************
-			String urlPhoto = path.getName();
+			String urlPhoto = nameCurrentImage;
 			values.add(urlPhoto);
 			
 			
@@ -1261,6 +1276,15 @@ public class GestionClientes extends JFrame
 					JOptionPane.showMessageDialog(null, "Cliente actualizado correctamente.", "CRM Clientes", JOptionPane.ERROR_MESSAGE);
 			}
 			
+			//Se guarda la imagen seleccionada.
+			if(!nameCurrentImage.equals("default_user.png")){
+				File destino = new File("user_photos/" + nameCurrentImage);
+	   		 	try {
+					ImageIO.write(currentImage, "jpg", destino);
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
+			}
 			
 
 			// ********* ACTUALIZAR LA TABLA DE DATOS *********			
@@ -1516,6 +1540,38 @@ public class GestionClientes extends JFrame
     	 }
     
     
+    
+    public boolean cargarImagen(String idCliente){
+    	JFileChooser fc=new JFileChooser();
+    	//Creamos el filtro
+    	FileNameExtensionFilter filtro = new FileNameExtensionFilter("*.JPG", "jpg", "*.PNG", "png");
+    	//Le indicamos el filtro
+    	fc.setFileFilter(filtro);
+    	
+    	int seleccion=fc.showOpenDialog(this);
+    	if(seleccion==JFileChooser.APPROVE_OPTION){
+    		 
+			 try {
+				 File imagen=fc.getSelectedFile();
+	    		 BufferedImage original = ImageIO.read(imagen);
+	    		 BufferedImage resizedImage = new BufferedImage(100, 100, BufferedImage.TYPE_INT_BGR);
+	    		 Graphics2D g = resizedImage.createGraphics();
+	    		 g.drawImage(original, 0, 0, 100, 100, null);
+	    		 g.dispose();
+	    		 currentImage = resizedImage;
+	    		 nameCurrentImage = idCliente+".jpg";
+	    		 //ImageIO.write(resizedImage, ext, destino);
+	    		 
+	    		 labelPhotoImage.setIcon(new ImageIcon(resizedImage));
+				} catch (IOException e) {
+					System.out.println("Error de escritura");
+					e.printStackTrace();
+			 }
+    		 
+    	}
+    	
+    	return true;
+    }
     
 }
 
