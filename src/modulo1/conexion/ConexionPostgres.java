@@ -97,7 +97,7 @@ public class ConexionPostgres
 	/**
 	 * A operation on the database with result. Returns a Result Set.
 	 * @param query Query to execute.
-	 * @return
+	 * @return JSONArray with JSONOjbet rows.
 	 */
 	public JSONArray executeQuery(String query){
 		Statement statement;
@@ -112,7 +112,6 @@ public class ConexionPostgres
 			while (resultSet.next()){
 				JSONObject jsonRow = new JSONObject();
 				int columnCount =  resultSet.getMetaData().getColumnCount();
-				
 				
 				for (int i=1; i<columnCount+1; i++){
 					String key = resultSet.getMetaData().getColumnLabel(i);

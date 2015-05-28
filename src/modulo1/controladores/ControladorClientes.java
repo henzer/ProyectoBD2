@@ -1,6 +1,11 @@
 package modulo1.controladores;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.swing.UIManager;
 import javax.swing.table.DefaultTableModel;
@@ -125,13 +130,27 @@ public class ControladorClientes
 	}
 	
 	
-	
-	
-	
 	public boolean updateCliente(String query){		
 		return ConexionPostgres.getInstancia().executeUpdate(query);
 	}
 	
+	
+	
+	/**
+	 * Obtiene el ID siguiente después del máximo ID existente en la tabla.
+	 * @param tableName	Tabla a evaluar.
+	 * @return	ID siguiente.
+	 * @throws Exception Cuando no encuentra el máximo en la tabla.
+	 */
+	public int getNextID(String tableName) throws Exception{
+		String query = "SELECT max(id" + tableName + ") FROM " + tableName + ";";
+		JSONArray jsonResult = ConexionPostgres.getInstancia().executeQuery(query);
+		if (jsonResult == null)
+			throw new Exception("ERROR.-Error al ejecutar query.");
+		String idString = jsonResult.getJSONObject(0).getString("id" + tableName);
+		int idInt = Integer.parseInt(idString);
+		return idInt;
+	}
 	
 	
 	
@@ -191,6 +210,56 @@ public class ControladorClientes
 	
 
 
+	/**
+	 * Método para parsear una fecha dada como string.
+	 * @param dateString
+	 * @return
+	 */
+	public boolean validateDate(String dateString){
+		SimpleDateFormat formatter1 = new SimpleDateFormat("dd-MM-yyyy");
+		SimpleDateFormat formatter2 = new SimpleDateFormat("dd/MM/yyyy");
+		Date date = null;
+        try {
+            date = formatter1.parse(dateString);
+            return true;
+        } catch (ParseException e) {
+        	try {
+				date = formatter2.parse(dateString);
+				return true;
+			} catch (ParseException e1) {
+				// TODO Auto-generated catch block
+				return false;
+			}            
+        }
+	}
+	
+	
+	/**
+	 * Método para parsear un correo dado como string.
+	 * @param emailString
+	 * @return
+	 */
+	public boolean validateEmail(String emailString){
+		Pattern pattern;
+		Matcher matcher;
+		
+		String EMAIL_PATTERN =  "^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@" + "[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";	 	
+		pattern = Pattern.compile(EMAIL_PATTERN);		
+		matcher = pattern.matcher(emailString);
+		return matcher.matches();
+		
+	}
+	
+	public boolean validateGenre(String genre){
+		Pattern pattern;
+		Matcher matcher;		
+		String EMAIL_PATTERN =  "m|M|f|M";	 	
+		pattern = Pattern.compile(EMAIL_PATTERN);		
+		matcher = pattern.matcher(genre);
+		return matcher.matches();
+	}
+	
+	
 	
 
 	
