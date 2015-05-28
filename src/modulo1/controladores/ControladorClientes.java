@@ -2,6 +2,7 @@ package modulo1.controladores;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -45,6 +46,7 @@ public class ControladorClientes
 	{
 		DefaultTableModel model = new DefaultTableModel();
 		dataActual = ConexionPostgres.getInstancia().executeQuery(query);
+		System.out.println(dataActual.toString());
 		for(String header: columnas){
 			model.addColumn(header);
 		}
@@ -112,7 +114,7 @@ public class ControladorClientes
 		int next = columns.size() + 1;
 		if(columns.contains(newName))
 			throw new Exception("ERROR.-Ya existe una columna con ese nombre");
-		return ConexionPostgres.getInstancia().executeUpdate("INSERT INTO metadata_clientes values ("+next+", '"+newName+"', '"+type+"', '"+titulo+"', 'F');");		
+		return ConexionPostgres.getInstancia().executeUpdate("ALTER TABLE cliente ADD COLUMN " + titulo + " " + type + ";");		
 	}
 
 	public int getPosActual() {
@@ -124,9 +126,22 @@ public class ControladorClientes
 	}
 	
 	//Sirve para obtener la metadata de la tabla Clientes
-	public JSONArray getMetadata(){
+	public ArrayList<String> getClientesLabels(){
+		ArrayList<String> labels = new ArrayList<String>();
 		JSONArray result = ConexionPostgres.getInstancia().executeQuery("SELECT * FROM metadata_clientes;");
-		return result;
+		for (int i=0; i<result.length(); i++){
+			try {
+				JSONObject object = result.getJSONObject(i);
+				labels.add(object.getString("texto"));
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block				
+				e.printStackTrace();
+				return null;
+			}
+			
+		}
+		
+		return labels;
 	}
 	
 	
@@ -144,12 +159,12 @@ public class ControladorClientes
 	 */
 	public int getNextID(String tableName) throws Exception{
 		String query = "SELECT max(id" + tableName + ") FROM " + tableName + ";";
-		JSONArray jsonResult = ConexionPostgres.getInstancia().executeQuery(query);
+		JSONArray jsonResult = ConexionPostgres.getInstancia().executeQuery(query);		
 		if (jsonResult == null)
 			throw new Exception("ERROR.-Error al ejecutar query.");
-		String idString = jsonResult.getJSONObject(0).getString("id" + tableName);
+		String idString = jsonResult.getJSONObject(0).getString("max");
 		int idInt = Integer.parseInt(idString);
-		return idInt;
+		return idInt+1;
 	}
 	
 	
@@ -215,21 +230,14 @@ public class ControladorClientes
 	 * @param dateString
 	 * @return
 	 */
-	public boolean validateDate(String dateString){
-		SimpleDateFormat formatter1 = new SimpleDateFormat("dd-MM-yyyy");
-		SimpleDateFormat formatter2 = new SimpleDateFormat("dd/MM/yyyy");
+	public boolean validateDate(String dateString){		
+		SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");
 		Date date = null;
         try {
-            date = formatter1.parse(dateString);
+            date = formatter.parse(dateString);
             return true;
-        } catch (ParseException e) {
-        	try {
-				date = formatter2.parse(dateString);
-				return true;
-			} catch (ParseException e1) {
-				// TODO Auto-generated catch block
-				return false;
-			}            
+        } catch (ParseException e) {        	
+			return false;			            
         }
 	}
 	

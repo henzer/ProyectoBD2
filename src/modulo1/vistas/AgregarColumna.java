@@ -28,6 +28,7 @@ public class AgregarColumna extends JFrame {
 	//en la base de datos.
 	public AgregarColumna(ControladorClientes control) {
 		this.control = control;
+		
 		setTitle("Agregar Columna");
 		setBounds(100, 100, 349, 159);
 		contentPane = new JPanel();
@@ -82,7 +83,7 @@ public class AgregarColumna extends JFrame {
 		
 		JButton btnCancelar = new JButton("Cancelar");
 		btnCancelar.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
+			public void actionPerformed(ActionEvent e) {				
 				cerrarVentana();
 			}
 		});
@@ -99,6 +100,6 @@ public class AgregarColumna extends JFrame {
 	}
 	
 	public void cerrarVentana(){
-		this.dispose();
+		this.dispose();		
 	}
 }

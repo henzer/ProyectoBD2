@@ -18,6 +18,7 @@ import javax.swing.BoxLayout;
 
 import modulo1.conexion.ConexionPostgres;
 import modulo1.controladores.ControladorClientes;
+import modulo2.conexion.Conexion;
 import modulo2.vistas.Ventana;
 
 import java.awt.FlowLayout;
@@ -54,10 +55,12 @@ import java.nio.channels.FileChannel;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import javax.swing.UIManager;
 import javax.swing.SwingConstants;
@@ -108,6 +111,7 @@ public class GestionClientes extends JFrame
 	private JPanel panelUserImage;
 	private JPanel panelFormObject;
 	private JLabel labelPhotoImage;
+	private JButton btnChoosePhoto;
 	private String currentTable = "cliente";
 	private File copia;
 	private File path;
@@ -330,9 +334,10 @@ public class GestionClientes extends JFrame
 		labelPhotoImage = new JLabel();
 		panelFormObject.add(panelUserImage, BorderLayout.NORTH);
 		panelUserImage.setLayout(new GridLayout(0, 2, 0, 0));		
-		JButton btnNewButton = new JButton("Seleccionar Foto");
+		btnChoosePhoto = new JButton("Seleccionar Foto");
+		btnChoosePhoto.setEnabled(false);
 		
-		btnNewButton.addActionListener(new ActionListener() 
+		btnChoosePhoto.addActionListener(new ActionListener() 
 		{
 			public void actionPerformed(ActionEvent arg0) 
 			{
@@ -363,7 +368,7 @@ public class GestionClientes extends JFrame
 				
 			}
 		});
-		panelUserImage.add(btnNewButton);
+		panelUserImage.add(btnChoosePhoto);
 		
 		
 		panelUserImage.add(labelPhotoImage);
@@ -565,10 +570,23 @@ public class GestionClientes extends JFrame
 					return;
 				}
 				
+				// Getting next ID from table 'cliente'.
+				int nextID = 0;
+				try {
+					nextID = controlClientes.getNextID("cliente");
+				} catch (Exception e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				listFormFields.get("textFieldidcliente").setText(String.valueOf(nextID));
+				
+				
+				btnChoosePhoto.setEnabled(true);
 				currentAction = "addingNewUser";
+				
 				ArrayList<String> fields = conexion.getTableColumns(currentTable);				
 				fields.remove("foto");
-				for (int i=0; i<fields.size(); i++){
+				for (int i=1; i<fields.size(); i++){
 					listFormFields.get("textField" + fields.get(i)).setEditable(true);					
 					listFormFields.get("textField" + fields.get(i)).setText("");
 					if (fields.get(i).equals("idcategoria") || fields.get(i).equals("iddepartamento") || fields.get(i).equals("idestado") || fields.get(i).equals("idtelefono")){
@@ -600,6 +618,7 @@ public class GestionClientes extends JFrame
 				}
 				
 				currentAction = "updatingUser";
+				btnChoosePhoto.setEnabled(true);
 				ArrayList<String> fields = conexion.getTableColumns(currentTable);				
 				fields.remove("foto");
 				for (int i=0; i<fields.size(); i++){
@@ -630,11 +649,7 @@ public class GestionClientes extends JFrame
 		btnEliminar.setToolTipText("Eliminar cliente");
 		btnEliminar.setPreferredSize(new Dimension(60,50));
 		btnEliminar.addActionListener(eliminarClienteListener);		// Ver definición de 'eliminarClienteListener'.
-		panelGCGestionarGestionar.add(btnEliminar);
-		
-		
-		
-		
+		panelGCGestionarGestionar.add(btnEliminar);	
 
 		
 		// ****************** FALTAN POR PROGRAMAR ******************
@@ -662,15 +677,9 @@ public class GestionClientes extends JFrame
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				if(controlClientes.getPosActual()!=-1 && currentTable.equals("cliente")){
-					String cliente="";
-					try {
-						cliente = ((JSONObject)controlClientes.getElement(controlClientes.getPosActual())).get("nombres").toString();
-					} catch (JSONException e) {
-						e.printStackTrace();
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-					Ventana v = new Ventana(cliente);
+					String nombreCliente = listFormFields.get("textFieldnombres").getText();
+					String apellidoCliente = listFormFields.get("textFieldapellidos").getText();
+					Ventana v = new Ventana(nombreCliente + " " + apellidoCliente);
 					v.setVisible(true);
 				}else{
 					
@@ -716,7 +725,7 @@ public class GestionClientes extends JFrame
 				String query = "SELECT * FROM " + currentTable + " WHERE id" + currentTable + " = " + id + ";" ;
 				JSONArray jsonRow = conexion.executeQuery(query);
 				if (jsonRow.length() == 0) {
-					JOptionPane.showMessageDialog(null, "No se encontró ningún resultado\ncon el ID especificado..!", "CRM Clientes", JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(null, "No se encontró ningún resultado\ncon el ID especificado..!", "CRM Clientes", JOptionPane.INFORMATION_MESSAGE);
 					textField_1.selectAll();
 					textField_1.requestFocusInWindow();
 					return;
@@ -995,8 +1004,7 @@ public class GestionClientes extends JFrame
 				e.printStackTrace();
 				JOptionPane.showMessageDialog(null, "Ocurrió un error al intentar\nobtener la foto del usuario..!", "CRM Clientes", JOptionPane.ERROR_MESSAGE);				
 				return;
-			}
-					    
+			}					    
 	        ImageIcon icon = getPhotoResized(userPhotoUrl);
 	        if (icon == null){
 	        	icon = getPhotoResized("default_user.png");
@@ -1221,14 +1229,14 @@ public class GestionClientes extends JFrame
 			if (currentAction.equals("")){
 				JOptionPane.showMessageDialog(null, "Ninguna cambio para guardar..!", "CRM Clientes", JOptionPane.ERROR_MESSAGE);
 				return;
-			}
+			}			
 			
 			// TODO Auto-generated method stub			
 			ArrayList<String> fields = conexion.getTableColumns(currentTable);
 			ArrayList<String> values = new ArrayList<String>();
 			ArrayList<String> columnsType = conexion.getTableColumnsType(currentTable);
 			fields.remove("foto");	// Este remove sirve solo para evitar el error cuando se recorre la lista de TextFields.
-			for (int i=0; i<fields.size(); i++){				
+			for (int i=0; i<fields.size(); i++){
 				JTextField textField = listFormFields.get("textField" + fields.get(i));
 				// Verificacion de que el campo no este vacío.
 				if (textField.getText().equals("")){
@@ -1236,6 +1244,39 @@ public class GestionClientes extends JFrame
 					listFormFields.get("textField" + fields.get(0)).requestFocus();
 					return;
 				}
+				
+				// VALIDACION CORREO
+				if (fields.get(i).equals("correo")){
+					boolean emailCorrect = controlClientes.validateEmail(textField.getText());
+					if (!emailCorrect){
+						JOptionPane.showMessageDialog(null, "Correo Inválido..!", "CRM Clientes", JOptionPane.ERROR_MESSAGE);
+						textField.requestFocus();
+						return;
+					}
+				}
+				
+				// VALIDACION FECHA NACIMIENTO
+				if (fields.get(i).equals("fechanacimiento")){
+					boolean dateCorrect = controlClientes.validateDate(textField.getText());					
+					if (!dateCorrect){
+						JOptionPane.showMessageDialog(null, "Fecha de Nacimiento Inválido..!", "CRM Clientes", JOptionPane.ERROR_MESSAGE);
+						textField.requestFocus();
+						return;
+					}
+				}
+				
+				// VALIDACION GENERO
+				if (fields.get(i).equals("genero")){					
+					boolean dateCorrect = controlClientes.validateGenre(textField.getText());					
+					if (!dateCorrect){
+						JOptionPane.showMessageDialog(null, "Génenero Inválido..!", "CRM Clientes", JOptionPane.ERROR_MESSAGE);
+						textField.requestFocus();
+						return;
+					}
+				}
+				
+				
+				
 				values.add(textField.getText());
 			}
 			
@@ -1244,7 +1285,6 @@ public class GestionClientes extends JFrame
 			// ************************* Obtener la url de la imagen *************************
 			String urlPhoto = nameCurrentImage;
 			values.add(urlPhoto);
-			
 			
 			
 			// Si la ACCION es agregar nuevo cliente....
@@ -1258,7 +1298,12 @@ public class GestionClientes extends JFrame
 					return;
 				}
 				else
-					JOptionPane.showMessageDialog(null, "Cliente insertado correctamente.", "CRM Clientes", JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(null, "Cliente insertado correctamente.", "CRM Clientes", JOptionPane.INFORMATION_MESSAGE);
+				
+				String nombreCliente = listFormFields.get("textFieldnombres").getText();
+				String apellidoCliente = listFormFields.get("textFieldapellidos").getText();
+				System.out.println("Data de: " + nombreCliente + " " + apellidoCliente);
+				Conexion.getInstancia().loadInformationOfTwitter(nombreCliente + " " + apellidoCliente);
 				
 			}
 			
@@ -1273,8 +1318,12 @@ public class GestionClientes extends JFrame
 					return;
 				}
 				else
-					JOptionPane.showMessageDialog(null, "Cliente actualizado correctamente.", "CRM Clientes", JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(null, "Cliente actualizado correctamente.", "CRM Clientes", JOptionPane.INFORMATION_MESSAGE);
 			}
+			
+			
+			// ********* UPDATE REALIZADO EXITOSAMENTE ********* 
+			
 			
 			//Se guarda la imagen seleccionada.
 			if(!nameCurrentImage.equals("default_user.png")){
@@ -1285,7 +1334,8 @@ public class GestionClientes extends JFrame
 					e1.printStackTrace();
 				}
 			}
-			
+		
+			btnChoosePhoto.setEnabled(false);
 
 			// ********* ACTUALIZAR LA TABLA DE DATOS *********			
 			ArrayList<String> tableColumnsToShow = new ArrayList<String>();		
@@ -1330,6 +1380,14 @@ public class GestionClientes extends JFrame
 				JOptionPane.showMessageDialog(null, "Hay una accion sin completar.", "CRM Clientes", JOptionPane.ERROR_MESSAGE);					
 				return;
 			}
+			
+			// Confirmación de eliminación de cliente.
+			int selectedOption = JOptionPane.showConfirmDialog(null, 
+                    "Está seguro que quiere\neliminar el cliente actual?", "CRM Clientes", JOptionPane.YES_NO_OPTION); 
+			if (selectedOption == JOptionPane.NO_OPTION) {
+				return;
+			}
+			
 			String idCliente = listFormFields.get("textFieldidcliente").getText();
 			String query = eliminarCliente(idCliente);
 			
@@ -1339,7 +1397,7 @@ public class GestionClientes extends JFrame
 				return;
 			}
 			else
-				JOptionPane.showMessageDialog(null, "Cliente eliminado correctamente.", "CRM Clientes", JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(null, "Cliente eliminado correctamente.", "CRM Clientes", JOptionPane.INFORMATION_MESSAGE);
 			
 			
 			currentAction = "";

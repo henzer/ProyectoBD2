@@ -408,6 +408,7 @@ public class Ventana extends JFrame {
 			}
 		}
 		query.put("user_name", cliente);
+		
 		return query;
 	}
 	

@@ -72,18 +72,17 @@ public class Conexion{
 	     }  
 	}
 	
-	public void loadInformationOfTwitter(List<String> users){
+	public void loadInformationOfTwitter(String user){
 		if(cb!=null){
 			DateFormat formato = new SimpleDateFormat("dd/MM/yyyy");
 			Twitter twitter = tf.getInstance();
 			Paging paging = new Paging(1, 100);
-			for(String user: users){
 				try {
 					List<Status> statuses = twitter.getUserTimeline(user ,paging);
 					for(Status tweet: statuses){
 						//System.out.println(" ID: " + tweet.getId() + " Texto: " + tweet.getText() + "#Retweet: " + tweet.getRetweetCount() + "# Fecha: " + formato.format(tweet.getCreatedAt()));
 						BasicDBObject basicObj = new BasicDBObject();  
-						basicObj.put("user_name", tweet.getUser().getScreenName());  
+						basicObj.put("user_name", user);  
 						basicObj.put("retweet_count", tweet.getRetweetCount());  
 						basicObj.put("tweet_followers_count",  
 						      tweet.getUser().getFollowersCount());  
@@ -102,7 +101,6 @@ public class Conexion{
 				}catch (TwitterException e) {
 					e.printStackTrace();
 				}
-			}
 		}else{
 			System.out.println("CB is null");
 		}

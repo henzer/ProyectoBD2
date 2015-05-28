@@ -60,6 +60,8 @@ public class Controlador {
 		System.out.println(campos);
 		
 		JSONArray result = conexion.search(query, campos);
+		System.out.println("Resultado: " + result);
+		
 		
 		for(int i= 0; i<result.length(); i++){
 			try {
